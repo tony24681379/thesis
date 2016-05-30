@@ -1,0 +1,134 @@
+% THIS IS AN EXAMPLE DOCUMENT FOR VLDB 2010
+% based on ACM SIGPROC-SP.TEX VERSION 2.7
+% Modified by  Gerald Weber <gerald@cs.auckland.ac.nz>
+
+
+% This example *does* use the .bib file (from which the .bbl file
+% is produced). REMEMBER HOWEVER: After having produced the .bbl file,
+% and prior to final submission, you need to 'insert'  your .bbl file into
+% your source .tex file so as to provide ONE 'self-contained' source file.
+
+
+\documentclass[a4paper,12pt]{report}
+\renewcommand{\baselinestretch}{1.5}
+%\usepackage[linesnumbered,boxed]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+%\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{latexsym}
+\usepackage{subfigure}
+\usepackage{subfig}
+\usepackage{color}
+
+\usepackage{float}
+\usepackage{indentfirst}
+\usepackage{wallpaper}
+\usepackage{pdfpages}
+\usepackage{multirow}
+\newtheorem{theorem}{Theorem}
+%\usepackage{pdfpages}
+%\usepackage{hyperref}
+\usepackage{CJK}
+
+\CenterWallPaper{.30}{figure/nthu-logo.pdf}
+
+%set paper size
+\special{papersize=8.5in,11in}
+\topmargin=14.7mm    %bottom margin 14.7mm
+\oddsidemargin=30mm   %left & right margin 17.45mm
+
+%text sizes (Keep these values unchanged!)
+\textwidth=150mm \textheight=250mm
+\columnsep=5.0mm
+\parindent=3.5mm
+
+%misc parameters
+\headsep=0mm  \headheight=0mm \footskip=18mm
+
+%conversion to values for LaTeX
+\advance\topmargin-1in\advance\oddsidemargin-1in
+\evensidemargin\oddsidemargin
+
+
+\begin{document}
+
+\includepdf[pages={1}]{cover.pdf}
+%\includepdf[pages={1}]{cover_ch.pdf}
+
+\title{\bf \huge Docker containers migration in Docker swarm}
+\date{}
+\author{
+\begin{tabular}{c}
+\\
+\\
+{\LARGE \bf Student: Cheng-Hao Huang}\\
+{\LARGE \bf Advisor: Prof. Che-Rung Lee}\\
+\\
+\\
+\\
+\\
+{\LARGE \bf Department of Computer Science}\\
+{\LARGE \bf National Tsing Hua University}\\
+{\LARGE \bf Hsinchu, Taiwan, 30013, R.O.C.}\\
+\\
+{\large July 2016}
+\end{tabular}
+}
+
+\maketitle
+\includepdfset{pagecommand={\thispagestyle{plain}}}
+
+\pagenumbering{roman}
+%\addcontentsline{toc}{chapter}{\ctxfr 中文摘要}
+\addcontentsline{toc}{chapter}{Chinese Abstract}
+\includepdf[pages={1}]{abstract_ch.pdf}
+
+\addcontentsline{toc}{chapter}{Abstract}
+\input{abstract}
+
+
+\addcontentsline{toc}{chapter}{Acknowledgements}
+\input{ack}
+
+\setcounter{page}{4}
+\addcontentsline{toc}{chapter}{Contents}
+\tableofcontents
+\clearpage
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+\clearpage
+\addcontentsline{toc}{chapter}{List of Tables}
+\listoftables
+\clearpage
+\addcontentsline{toc}{chapter}{List of Algorithms}
+\listofalgorithms
+\clearpage
+
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{introduction}
+\input{background}
+\input{conclusion}
+
+
+\bibliographystyle{plain}
+\bibliography{note}
+
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+%{%\scriptsize
+%\bibliographystyle{abbrv}
+%\bibliography{HPCoC_cite}
+%}
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+
+\end{document}
