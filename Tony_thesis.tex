@@ -23,18 +23,21 @@
 \usepackage{subfigure}
 \usepackage{subfig}
 \usepackage{color}
-
 \usepackage{float}
 \usepackage{indentfirst}
 \usepackage{wallpaper}
 \usepackage{pdfpages}
 \usepackage{multirow}
+%\usepackage{fontspec}
 \newtheorem{theorem}{Theorem}
-%\usepackage{pdfpages}
+
 %\usepackage{hyperref}
-\usepackage{CJK}
 
 \CenterWallPaper{.30}{figure/nthu-logo.pdf}
+
+%\setCJKmainfont{標楷體}
+%\XeTeXlinebreaklocale "zh"
+%\XeTeXlinebreakskip = 0pt plus 1pt
 
 %set paper size
 \special{papersize=8.5in,11in}
@@ -52,7 +55,6 @@
 %conversion to values for LaTeX
 \advance\topmargin-1in\advance\oddsidemargin-1in
 \evensidemargin\oddsidemargin
-
 
 \begin{document}
 
@@ -81,7 +83,6 @@
 
 \maketitle
 \includepdfset{pagecommand={\thispagestyle{plain}}}
-
 \pagenumbering{roman}
 %\addcontentsline{toc}{chapter}{\ctxfr 中文摘要}
 \addcontentsline{toc}{chapter}{Chinese Abstract}
@@ -113,6 +114,7 @@
 \setcounter{page}{1}
 \input{introduction}
 \input{background}
+\input{design}
 \input{conclusion}
 
 

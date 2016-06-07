@@ -1,3 +1,22 @@
 \chapter{Background}
 \label{chap:background}
-This is Chapter~ \ref{chap:background} and cite test \cite{Knight:1986:AMF:319838.319854, Sohi:1995:MP:225830.224451, Hammond:1998:DSS:291069.291020}. 
+\section{Docker}
+Docker is a open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization on Linux. Docker engine include Docker client and Docker daemon.
+\subsection{Docker client}
+Docker is typical Client/Server architecture application. Docker client uses Docker command to send and receive requests to Docker daemon. Also, Docker supports remote RESTful API to send and receive HTTP requests to Docker daemon, it has been implemented by more than 10 programming languages.
+\subsection{Docker daemon}
+Docker daemon is a daemon that runs as system service. It has two the most importance features: 
+\begin{itemize}
+    \item receive and handle Docker client's requests.
+    \item manage containers.
+\end{itemize}
+When docker daemon is running, it will run a server that receives requests from Docker clients or remote RESTful API. After receives requests, server will pass requests by router to find handler to handle the requests.
+\section{Docker Swarm}
+Docker Swarm is native clustering for Docker. It gathers several docker engines together into  one virtual docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. And it also support Docker client of course.
+\subsection{Discovery services}
+\subsection{Advanced Scheduling}
+\subsection{High availability}
+
+\section{criu}
+
+\ref{chap:background} and cite test \cite{Knight:1986:AMF:319838.319854, Sohi:1995:MP:225830.224451, Hammond:1998:DSS:291069.291020}.
