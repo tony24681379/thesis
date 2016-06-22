@@ -1,0 +1,29 @@
+\begin{thebibliography}{1}
+
+\bibitem{CRIU}
+Criu.
+\newblock \url{https://criu.org/Main_Page}.
+
+\bibitem{Docker}
+Docker.
+\newblock \url{https://www.docker.com/}.
+
+\bibitem{grinberg2009parallel}
+L~Grinberg, D~Pekurovsky, SJ~Sherwin, and GE~Karniadakis.
+\newblock Parallel performance of the coarse space linear vertex solver and low
+  e nergy basis preconditioner for spectral $hp$ elements.
+\newblock {\em Parallel Computing}, 35(5):284--304, 2009.
+
+\bibitem{Hammond:1998:DSS:291069.291020}
+Lance Hammond, Mark Willey, and Kunle Olukotun.
+\newblock Data speculation support for a chip multiprocessor.
+\newblock In {\em Proceedings of the Eighth International Conference on
+  Architectural Support for Programming Languages and Operating Systems},
+  ASPLOS VIII, pages 58--69, New York, NY, USA, 1998. ACM.
+
+\bibitem{Sohi:1995:MP:225830.224451}
+Gurindar~S. Sohi, Scott~E. Breach, and T.~N. Vijaykumar.
+\newblock Multiscalar processors.
+\newblock {\em SIGARCH Comput. Archit. News}, 23(2):414--425, May 1995.
+
+\end{thebibliography}

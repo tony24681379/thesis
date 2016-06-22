@@ -1,11 +1,31 @@
 \chapter{Design and Implementation}
 \label{chap:design}
-\section{Design}
+\section{Docker}
+In native Docker, It has two part, Docker client and Docker daemon. Docker daemon has many components include server, engine, registry, graph, driver and runC. To  support checkpoint and restore request, some of these steps should be implemented.
 
 \subsection{Docker client}
 
-\subsection{Docker daemon}
 
-\subsection{Docker container migration}
+\subsection{Docker daemon}
+In native Docker daemon, it doesn't support checkpoint and restore command.
+Fortunately, it is already implemented in runC, so we have to add some code to proxy Docker client's requests through Docker daemon to runC.
+
+\section{Docker Swarm configuration}
+We prepare a remote storage server for saving Docker containers checkpoint images. It should have fault tolerant to avoid service shout down. For these reasons, We choose glusterFS to be our experiments remote storage server.                                
+After setting up glusterFS, we mount it to every Docker nodes in the same folder. To avoid mount it as absolute path in every Docker nodes, we mount it to Docker root which we can change configuration in Docker daemon.
+
+\section{Docker containers migration in Docker Swarm}
+Docker Swarm creates containers through Swarm scheduler to dispatch Docker nodes. If we want to specific assign which node we want to create containers, we have to set filters like constraint, affinity or dependency. To migrate containers in Docker Swarm, we must avoid the containers which we want to migrate that migrate to an other nodes, instead of the same node.
+\begin{enumerate}[Step 1]
+	\item Check Docker Swarm cluster has at least two Swarm nodes.
+    \item Parse Docker client requests to analyse label and environment variables, and transform label and environment variables to Docker Swarm filters.
+    \item Add constraint filter to make sure the container which we want to migrate does not migrate to the same node.
+    \item Pre-dump the container which we want to migrate to decrease container frozen time.
+    \item Checkpoint the container by tracking memory.
+    \item Create empty container on the Docker Swarm scheduler chooses node.
+    \item Restore the container to the Docker Swarm scheduler chooses node.
+    \item Delete the checkpoint images.
+\end{enumerate}
 
 \section{Docker Swarm rescheduling policy}
+
