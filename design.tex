@@ -16,7 +16,7 @@ After setting up glusterFS, we mount it to every Docker nodes in the same folder
 
 \section{Docker containers migration in Docker Swarm}
 Docker Swarm creates containers through Swarm scheduler to dispatch Docker nodes. If we want to specific assign which node we want to create containers, we have to set filters like constraint, affinity or dependency. To migrate containers in Docker Swarm, we must avoid the containers which we want to migrate that migrate to an other nodes, instead of the same node.
-\begin{enumerate}[Step 1]
+\begin{enumerate}[Step 1.]
 	\item Check Docker Swarm cluster has at least two Swarm nodes.
     \item Parse Docker client requests to analyse label and environment variables, and transform label and environment variables to Docker Swarm filters.
     \item Add constraint filter to make sure the container which we want to migrate does not migrate to the same node.
@@ -27,5 +27,14 @@ Docker Swarm creates containers through Swarm scheduler to dispatch Docker nodes
     \item Delete the checkpoint images.
 \end{enumerate}
 
-\section{Docker Swarm rescheduling policy}
-
+\section{Docker Swarm restore rescheduling policy}
+In Docker Swarm, it has rescheduling policy. As we set the reschedule policy when we start a container, whenever Swarm nodes fail, Swarm master will restart the containers which on the fail nodes to another alive Swarm nodes. We improve this policy that we checkpoint every containers which we want to keep checkpoint for every checkpoint-time. whenever Swarm nodes fail, Swarm master will restore the containers which Swarm master has dumped checkpoint. Otherwise, restore rescheduling policy provides version checkpoint by memory track. It only dump different memory page checkpoint to new version checkpoint.
+%By experment, it can save at least XX% hard disk space
+\begin{enumerate}[Step 1.]
+	\item Set reschedule:restore label and checkpoint-time label when we create the container.
+    \item Swarm master analyzes checkpoint and restore label when the container start.
+    \item After the container starting, Swarm master sends pre-dump checkpoint request to Swarm node's Docker daemon.
+    \item After pre-dumping the container, Swarm master sends dump new version checkpoint and delete checkpoint forth from last version checkpoint request to Swarm node's Docker daemon every checkpoint-time.
+    \item Whenever Swarm nodes fail, Swarm master will restore the containers which Swarm master has dumped checkpoint last version to another Swarm nodes.
+    \item To avoid dumping checkpoint version failing at the same time, if restoring last version failing, Swarm master will retry second last version checkpoint to restore. We keep 3 versions in the remote storage server.
+\end{enumerate}
