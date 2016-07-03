@@ -29,7 +29,6 @@
 \usepackage{pdfpages}
 \usepackage{multirow}
 \usepackage{enumerate}
-%\usepackage{fontspec}
 \usepackage{url}
 \newtheorem{theorem}{Theorem}
 
@@ -59,11 +58,10 @@
 \evensidemargin\oddsidemargin
 
 \begin{document}
-
 \includepdf[pages={1}]{cover.pdf}
 %\includepdf[pages={1}]{cover_ch.pdf}
 
-\title{\bf \huge Checkpoint and restore containers in Docker Swarm}
+\title{\bf \huge Design and Implementation of Container's Checkpoint-and-Restore in Docker Swarm}
 \date{}
 \author{
 \begin{tabular}{c}
@@ -113,6 +111,8 @@
 \input{introduction}
 \input{background}
 \input{design}
+\input{experiments}
+\input{related}
 \input{conclusion}
 
 

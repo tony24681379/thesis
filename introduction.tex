@@ -1,3 +1,16 @@
 \chapter{Introduction}
 \label{chap:intro}
-Traditionally, people rely supercomputers to calculate data.  \ref{chap:intro}, introduction.
+Traditionally, people rely single supercomputer to calculate data or deploy their companies's application. Nowadays, cloud computing has been use wildly. People would like to use a lot of normal computers that gather them into a cluster to replace a supercomputer. More and more companies build their data centres or use cloud platforms to construct their business application.
+
+Virtualization is a popular technology that is used wildly on cloud computing,  including virtual operating system, computer hardware platforms, storage device and computer network resources.
+Virtual machine is a technology to emulate a particular computer like a real computer. It can partition a physical machine resource, such as CPU, memory, storage, and network.
+A hypervisor uses execution to manage and share host physical machine hardware, it allows many different virtual machines isolated from each other.
+
+Container is operating system level virtualization which runs as an isolated process in userspace on the host operating system and shares the same operation system kernel with other containers.
+It provides kernel namespace such as PID,IPC, network, mount, and user namespace to isolate each container environment to host operation system.
+In order to control hardware resource like CPU, memory, network, and disk I/O, container uses cgroups to limit each container resources.
+Container doesn't have hypervisor to isolate with host operating system, therefore, it can offer better performance than virtual machine.
+
+Checkpoint and restoration  container migration
+
+High availability

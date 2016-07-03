@@ -1,7 +1,7 @@
 \chapter{Background}
 \label{chap:background}
 \section{Docker}
-Docker \cite{Docker} is a open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux. Docker has two parts, including Docker client and Docker daemon.
+Docker \cite{Docker} is a open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux. Besides, Docker has extra image management and layered file system to reduce disk space. Docker has two parts, including Docker Client and Docker Daemon.
 
 \begin{figure}[h]
 \begin{center}
@@ -10,24 +10,28 @@ Docker \cite{Docker} is a open-source project container engine. It provides an a
 \caption{Single node Docker}
 \end{figure}
 
-\subsection{Docker client}
-Docker is typical Client/Server architecture application. Docker client uses Docker command to send and receive requests to Docker Daemon. Also, Docker supports remote RESTful API to send and receive HTTP requests to Docker Daemon. In additional, it has been implemented by more than 10 programming languages.
+\subsection{Docker Client}
+Docker is typical client/server architecture application.
+Docker Client is a \linebreak CLI(Client Line Interface) in Docker.
+Docker uses Docker Client to send and receive requests to Docker Daemon. Also, Docker supports remote RESTful API to send and receive HTTP requests to Docker Daemon.
+In additional, it has been implemented by more than 10 programming languages.
 
-\subsection{Docker daemon}
-Docker daemon is a daemon that runs as system service. It has two the most importance features: 
+\subsection{Docker Daemon}
+Docker Daemon is a daemon that runs as system service. It has two the most importance features: 
 \begin{itemize}
-    \item Receive and handle Docker client's requests.
+    \item Receive and handle Docker Client's requests.
     \item Manage containers.
 \end{itemize}
-When docker daemon is running, it will run a server that receives requests from Docker clients or remote RESTful API. After receiving requests, server will pass the requests by router to find the handler to handle the requests.
+When Docker Daemon is running, it will run a server that receives requests from Docker Clients or remote RESTful API. After receiving requests, server will pass the requests by router to find the handler to handle the requests. By default, Docker Daemon listens UNIX socket requests, it serves root permission, or docker group membership. Whenever user wants Docker Daemon to listen remote RESTful API or Docker Swarm requests, it has to be enabled the TCP socket.
 
-\subsection{runc}
-runc is a CLI tool for running containers according to the OCI specification. It doesn't need any dependency from the system, it can control Linux Kernel include namespace, cgroups, apparmor, netlink, capabilities, firewall, etc.
-runc provides a standard interface to support the containers management. Docker can use runc to control the containers.
+\subsection{runC}
+runC is a CLI tool for running containers according to the OCI(Open Container Initiative) specification. It doesn't need any dependency from the operating system, it can control Linux Kernel include namespace, cgroups, apparmor, netlink, capabilities, firewall, etc.
+runC provides a standard interface to support the containers management that Docker can use it to control the containers.
 
 \section{Docker Swarm}
-Docker Swarm is a native clustering for Docker. It gathers several docker engines together into  one virtual docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. It also support Docker client of course.
-In Docker Swarm, it has two components which are Swarm master and Swarm node. Swarm master is the manager which handles Docker client and RESTful API requests and manages multiple Docker nodes resources. Docker node is an agent which sends heartbeat to Discovery Service to ensure Docker daemon is alive in the cluster.
+Docker Swarm \cite{DockerSwarm} is a native clustering for Docker. It gathers several docker engines together into  one virtual docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. It also support Docker Client of course.
+
+In Docker Swarm, it has two components which are Swarm master and Swarm node. Swarm master is the manager which handles Docker Client and RESTful API requests and manages multiple Docker nodes resources. Docker Node is an agent which sends heartbeat to Discovery Service to ensure Docker Daemon is alive in the cluster.
 \\
 \\
 \\
@@ -48,10 +52,13 @@ Docker Swarm provides multiple Discovery Services backends. They are used to dis
 Otherwise, it also supports any modules which satisfy Discovery API interface.
 
 \subsection{Scheduler}
-Docker Swarm scheduler decides which nodes to use when creating and running a container. It has two steps. First, It follows user's filters to decide which nodes are conform. Second, It passes through strategies to select the best node in the cluster.
+Docker Swarm scheduler decides which nodes to use when creating and running a container. It has two steps.
+First, It follows user's filters to decide which nodes are conform.
+Second, It passes through strategies to select the best node in the cluster.
 
 \subsubsection{Filter}
-Filters are divided into two categories, node filters and container configuration filters. Node filters operate on characteristics of the Docker host or on the configuration of the Docker Daemon. Container configuration filters operate on characteristics of containers, or on the availability of images on a host.
+Filters are divided into two categories, node filters and container configuration filters. Node filters operate on characteristics of the Docker host or on the configuration of the Docker Daemon.
+Container configuration filters operate on characteristics of containers, or on the availability of images on a host.
 The node filters are:
 \begin{itemize}
     \item Constraint
@@ -66,19 +73,27 @@ The container configuration filters are:
 \end{itemize}
 
 \subsubsection{Strategies}
-The Docker Swarm scheduler features multiple strategies for ranking nodes. Swarm currently supports these values:
+The Docker Swarm scheduler features multiple strategies for ranking nodes. Docker Swarm currently supports these values:
 \begin{itemize}
     \item Spread
     \item Binpack
     \item Random
 \end{itemize}
-Spread and Binpack strategies compute rank according to a node’s available CPU, its RAM, and the number of containers it has. It selects a node at random. Under the Spread strategy, Swarm optimizes for the node with the least number of containers. The Binpack strategy causes Swarm to optimize for the node which is most packed. The Random strategy uses no computation, chooses nodes at random regardless of their available CPU or RAM.
+Spread and Binpack strategies compute rank according to a node’s available CPU, its RAM, and the number of containers it has. It selects a node at random.
+Under the Spread strategy, Swarm optimizes for the node with the least number of containers.
+The Binpack strategy causes Swarm to optimize for the node which is most packed.
+The Random strategy uses no computation, chooses nodes at random regardless of their available CPU or RAM.
 
-\subsection{High availability}
-In Docker Swarm, Swarm manager responses the cluster and manages the resources of multiple Docker nodes at scale. If Swarm master dies, we have to create a new one and deal with the interruption of service.
-The High availability feature allows Docker Swarm has multiple Swarm manager instances. We can create a primary manager and multiple replica instances. Whenever we send requests to replica instances, it will be automatically proxied to the primary manager. In addition, if the primary manager fails, the others replica instances will lead a new primary manager.
+\subsection{High availability of Swarm Manager}
+In Docker Swarm, Swarm Manager responses the cluster and manages the resources of multiple Docker nodes at scale. If Swarm master dies, we have to create a new one and deal with the interruption of service.
+
+The High availability feature allows Docker Swarm has multiple Swarm Manager instances. We can create a primary manager and multiple replica instances.
+Whenever we send requests to replica instances, it will be automatically proxied to the primary manager.
+In addition, if the primary manager fails, the others replica instances will lead a new primary manager.
+
+\subsection{High availability of Swarm containers}
+In Docker Swarm, it has rescheduling policy. As we set the reschedule policy when we start a container, whenever Swarm nodes fail, Swarm Manager will restart all of the containers which on the fail nodes to another alive Swarm Nodes.
 
 \section{CRIU}
-CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) stands for Checkpoint and Restore in User Space, creates a complete snapshot of the state of a process, including things like memory contents, file descriptors, and even open tcp connections. It can be used for suspending and resuming processes, or live migrating them from one machine to another.
+CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) stands for Checkpoint and Restore in User Space, creates a complete snapshot of the state of a process, including things like memory contents, file descriptors, and even open TCP connections. It can be used for suspending and resuming processes, or live migrating them from one machine to another.
 
-\ref{chap:background} and cite test \cite{Sohi:1995:MP:225830.224451, Hammond:1998:DSS:291069.291020, grinberg2009parallel}.
