@@ -19,19 +19,19 @@ In additional, it has been implemented by more than 10 programming languages.
 \subsection{Docker Daemon}
 Docker Daemon is a daemon that runs as system service. It has two the most importance features: 
 \begin{itemize}
-    \item Receive and handle Docker Client's requests.
+    \item Receive and handle requests from Docker Clients.
     \item Manage containers.
 \end{itemize}
-When Docker Daemon is running, it will run a server that receives requests from Docker Clients or remote RESTful API. After receiving requests, server will pass the requests by router to find the handler to handle the requests. By default, Docker Daemon listens UNIX socket requests, it serves root permission, or docker group membership. Whenever user wants Docker Daemon to listen remote RESTful API or Docker Swarm requests, it has to be enabled the TCP socket.
+When Docker Daemon is running, it will run a server that receives requests from Docker Clients or remote RESTful API. After receiving requests, server will pass the requests by router to find the handler to handle the requests. By default, Docker Daemon listens UNIX socket requests, it serves root permission, or docker group membership. Whenever user wants Docker Daemon to listen remote RESTful API or Docker Swarm requests, it has to enable the TCP socket.
 
 \subsection{runC}
-runC is a CLI tool for running containers according to the OCI(Open Container Initiative) specification. It doesn't need any dependency from the operating system, it can control Linux Kernel include namespace, cgroups, apparmor, netlink, capabilities, firewall, etc.
+runC is a CLI tool for running containers according to the OCI(Open Container Initiative) specification. It doesn't need any dependency from the operating system, it can control Linux Kernel include namespace, cgroups, apparmor, network, capabilities, firewall, etc.
 runC provides a standard interface to support the containers management that Docker can use it to control the containers.
 
 \section{Docker Swarm}
-Docker Swarm \cite{DockerSwarm} is a native clustering for Docker. It gathers several docker engines together into  one virtual docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. It also support Docker Client of course.
+Docker Swarm \cite{DockerSwarm} is a native clustering for Docker. It gathers several Docker engines together into one virtual Docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. It also support Docker Client of course.
 
-In Docker Swarm, it has two components which are Swarm master and Swarm node. Swarm master is the manager which handles Docker Client and RESTful API requests and manages multiple Docker nodes resources. Docker Node is an agent which sends heartbeat to Discovery Service to ensure Docker Daemon is alive in the cluster.
+In Docker Swarm, it has two components which are Swarm Manager and Swarm Node. Swarm Manager is the manager which handles Docker Client and RESTful API requests and manages multiple Docker Nodes resources. Docker Node is an agent which sends heartbeat to Discovery Service to ensure Docker Daemon is alive in the cluster.
 \\
 \\
 \\
@@ -43,11 +43,11 @@ In Docker Swarm, it has two components which are Swarm master and Swarm node. Sw
 \end{figure}
 
 \subsection{Discovery services}
-Docker Swarm provides multiple Discovery Services backends. They are used to discover nodes in the cluster. There are:
+Docker Swarm provides multiple Discovery Services backends. They are used to discover the nodes in the cluster. There are:
 \begin{itemize}
     \item Using a distributed key/value store, like Consul, Etcd and Zookeeper.
     \item A static file or list of nodes.
-    \item Docker Hub as a hosted discovery service
+    \item Docker Hub as a hosted discovery service.
 \end{itemize}
 Otherwise, it also supports any modules which satisfy Discovery API interface.
 
@@ -80,18 +80,18 @@ The Docker Swarm scheduler features multiple strategies for ranking nodes. Docke
     \item Random
 \end{itemize}
 Spread and Binpack strategies compute rank according to a node’s available CPU, its RAM, and the number of containers it has. It selects a node at random.
-Under the Spread strategy, Swarm optimizes for the node with the least number of containers.
-The Binpack strategy causes Swarm to optimize for the node which is most packed.
+Under the Spread strategy, Swarm chooses the node with the least number of containers.
+The Binpack strategy chooses the node which has executed most containers.
 The Random strategy uses no computation, chooses nodes at random regardless of their available CPU or RAM.
 
 \subsection{High availability of Swarm Manager}
-In Docker Swarm, Swarm Manager responses the cluster and manages the resources of multiple Docker nodes at scale. If Swarm master dies, we have to create a new one and deal with the interruption of service.
+In Docker Swarm, Swarm Manager responses the cluster and manages the resources of multiple Docker Nodes at scale. If Swarm Manager dies, we have to create a new one and deal with the interruption of service.
 
 The High availability feature allows Docker Swarm has multiple Swarm Manager instances. We can create a primary manager and multiple replica instances.
 Whenever we send requests to replica instances, it will be automatically proxied to the primary manager.
 In addition, if the primary manager fails, the others replica instances will lead a new primary manager.
 
-\subsection{High availability of Swarm containers}
+\subsection{High availability of Docker Swarm containers}
 In Docker Swarm, it has rescheduling policy. As we set the reschedule policy when we start a container, whenever Swarm nodes fail, Swarm Manager will restart all of the containers which on the fail nodes to another alive Swarm Nodes.
 
 \section{CRIU}
