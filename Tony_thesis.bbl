@@ -12,6 +12,11 @@ Docker.
 Docker swarm.
 \newblock \url{https://docs.docker.com/swarm/overview/}.
 
+\bibitem{helsley2009lxc}
+Matt Helsley.
+\newblock Lxc: Linux container tools.
+\newblock {\em IBM devloperWorks Technical Library}, 2009.
+
 \bibitem{hines2009post}
 Michael~R Hines and Kartik Gopalan.
 \newblock Post-copy based live virtual machine migration using adaptive

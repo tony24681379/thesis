@@ -1,7 +1,15 @@
 \chapter{Background}
 \label{chap:background}
 \section{Docker}
-Docker \cite{Docker} is a open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux. Besides, Docker has extra image management and layered file system to reduce disk space. Docker has two parts, including Docker Client and Docker Daemon.
+Docker \cite{Docker} is a open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux. Besides, Docker has extra image management and layered file system to optimize the performance of container and reduce disk space. Docker images and Docker containers share the same image layer file if they have the same data. When Docker creates container, Docker will create a writable layer that allow the container application to change file system. Docker has two parts, including Docker Client and Docker Daemon.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=15cm]{figure/layered_file_system.png}
+\end{center}
+\caption{Docker layered file system}
+\label{fig:Docker layered file system}
+\end{figure}
 
 \begin{figure}[h]
 \begin{center}
@@ -12,7 +20,7 @@ Docker \cite{Docker} is a open-source project container engine. It provides an a
 
 \subsection{Docker Client}
 Docker is typical client/server architecture application.
-Docker Client is a \linebreak CLI(Client Line Interface) in Docker.
+Docker Client is a \linebreak CLI (Client Line Interface) in Docker.
 Docker uses Docker Client to send and receive requests to Docker Daemon. Also, Docker supports remote RESTful API to send and receive HTTP requests to Docker Daemon.
 In additional, it has been implemented by more than 10 programming languages.
 
@@ -21,12 +29,22 @@ Docker Daemon is a daemon that runs as system service. It has two the most impor
 \begin{itemize}
     \item Receive and handle requests from Docker Clients.
     \item Manage containers.
+    \item Manage container images.
 \end{itemize}
 When Docker Daemon is running, it will run a server that receives requests from Docker Clients or remote RESTful API. After receiving requests, server will pass the requests by router to find the handler to handle the requests. By default, Docker Daemon listens UNIX socket requests, it serves root permission, or docker group membership. Whenever user wants Docker Daemon to listen remote RESTful API or Docker Swarm requests, it has to enable the TCP socket.
 
 \subsection{runC}
-runC is a CLI tool for running containers according to the OCI(Open Container Initiative) specification. It doesn't need any dependency from the operating system, it can control Linux Kernel include namespace, cgroups, apparmor, network, capabilities, firewall, etc.
+When Docker came into being, Docker used LXC as its container execution environment. After Docker version 0.9, Docker dropped LXC but used libcontainer as its default execution environment.
+runC which is basically a repackaging of libcontainer is a CLI tool for running containers according to the OCI(Open Container Initiative) specification. It doesn't need any dependency from the operating system, it can control Linux Kernel include namespace, cgroups, apparmor, network, capabilities, firewall, etc.
 runC provides a standard interface to support the containers management that Docker can use it to control the containers.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=6cm]{figure/docker_LXC.png}
+\end{center}
+\caption{Docker Daemon execution environment with runC and LXC}
+\label{fig:docker_LXC}
+\end{figure}
 
 \section{Docker Swarm}
 Docker Swarm \cite{DockerSwarm} is a native clustering for Docker. It gathers several Docker engines together into one virtual Docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. It also support Docker Client of course.
@@ -95,5 +113,4 @@ In addition, if the primary manager fails, the others replica instances will lea
 In Docker Swarm, it has rescheduling policy. As we set the reschedule policy when we start a container, whenever Swarm nodes fail, Swarm Manager will restart all of the containers which on the fail nodes to another alive Swarm Nodes.
 
 \section{CRIU}
-CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) stands for Checkpoint and Restore in User Space, creates a complete snapshot of the state of a process, including things like memory contents, file descriptors, and even open TCP connections. It can be used for suspending and resuming processes, or live migrating them from one machine to another.
-
+CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) stands for Checkpoint and Restore in User Space, creates a complete snapshot of the state of a process, including things like memory contents, file descriptors, and even open TCP connections. It can be used for suspending and resuming processes, or migrating them from one machine to another.

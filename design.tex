@@ -26,9 +26,7 @@ In native Docker Daemon, it doesn't support checkpoint and restore command.
 Fortunately, it is already implemented in runC, so we have to add a proxy between Docker Daemon and runC, which can handle Docker Client's checkpoint and restore requests.
 
 \section{Docker Swarm configuration}
-As Figure \ref{fig:Docker Swarm with remote storage server}, we prepare a remote storage server for saving Docker containers dump checkpoint images. It should have fault tolerant to avoid service shout down. For these reasons, We choose glusterFS to be our experiments remote storage server.                            
-
-After setting up glusterFS, we mount it to every Docker nodes in the same folder. To avoid mount it as absolute path in every Docker nodes, we mount it to Docker root which we can change configuration in Docker Daemon.
+As Figure \ref{fig:Docker Swarm with remote storage server}, we prepare a remote storage server for saving Docker containers dump checkpoint images. It should have fault tolerant to avoid service shout down. For these reasons, We choose glusterFS to be our experiments remote storage server.
 
 \begin{figure}[h]
 \begin{center}
@@ -45,10 +43,10 @@ To migrate containers in Docker Swarm, we must avoid the containers which we wan
 	\item Check Docker Swarm cluster has at least two Swarm nodes.
     \item Parse Docker Client requests to analyse label and environment variables, and transform label and environment variables to Docker Swarm filters.
     \item Add constraint filter to make sure the container which we want to migrate does not migrate to the same node.
+    \item Create empty container on the Docker Swarm scheduler chooses node, this step could download the container image if it doesn't exist in the be chosen node.
     \item Pre-dump the container checkpoint image which we want to migrate to decrease container frozen time.
     \item Dump the container checkpoint image by tracking memory from pre-dump checkpoint image.
-    \item Create empty container on the Docker Swarm scheduler chooses node.
-    \item Restore the container to the Docker Swarm scheduler chooses node.
+    \item Restore the container to the empty container that Docker Swarm scheduler chooses node.
     \item Delete the checkpoint images.
     \item If the container was migrated which had set checkpoint restore rescheduling policy, it will restart checkpoint restore rescheduling policy \ref{sec:checkpoint restore rescheduling policy}.
 \end{enumerate}
@@ -62,37 +60,46 @@ We improve this policy that we dump the checkpoint image for every containers wh
 In addition, it also support high availability that whenever Docker Swarm primary manager fails, the others Swarm Manager replica instances will lead a new primary manager. After replica leading a new primary manager, it will restart container checkpoint tickers.
 %By experment, it can save at least XX% hard disk space
 
-\subsection{Docker Swarm container checkpoint tickers}
-\begin{enumerate}[Step 1.]
-	\item Set checkpoint-time label and version-group label when we create the container.
-    \item Swarm Manager analyzes checkpoint label when the container has created. If version-group label doesn't set, version-group will be set to 5.
-    \item After the container starting, starting the container checkpoint ticker. Container checkpoint tickers are pounding when users want to checkpoint container repeatedly at regular intervals. Container checkpoint tickers will do these steps:
-    \begin{enumerate}[Step a.]
-    \item Swarm Manager sends pre-dump checkpoint request to Swarm Node's Docker Daemon when every Pre-dump version start.
-    \item After pre-dumping the container, Swarm Manager sends dump new version checkpoint request to Swarm Node's Docker Daemon. Every new checkpoint images track memory to last checkpoint version image, just save memory difference in new checkpoint image. We save version-group(default 5) versions in the same directory(Figure \ref{fig:Containers checkpoint versions in remote storage server}).
-    \item Send delete checkpoint request to Swarm Node's Docker Daemon to delete oldest Pre-dump version directory whenever container has more than two Pre-dump versions directory.
-    \end{enumerate}
-\end{enumerate}
+\subsection{Docker Swarm Container Checkpoint Tickers Strategy}
+The details of our algorithm in Algorithm \ref{code:checkpointTicker} that explains Container Checkpoint Tickers Strategy.
+In line1 and line2, we set checkpoint-time $T_i$ and version-group $VG_i$ when we create the container $C_i$ through Docker Swarm Manager, and every $T_i$ are independent.
+Each $T_i$ in the Docker Swarm cluster has its starting time and time ticker, time ticker will dump checkpoint image repeatedly at regular intervals. If version-group $VG_i$ doesn't be set, it will be set to 5.
+We define checkpoint version $V_i=0$, and pre-dump checkpoint version $pre$-$dump V_i=0$ for each container $C_i$.
+
+In line4-18, for each container is running and $C_i$ checkpoint ticker $T_i$ is time up, $C_i$, Swarm Manger will do line5-17.
+In line6-9, if the container $C_i$ doesn't has any pre-dump image or newest version-group $VG_i$ checkpoint is full, Swarm Manger will send the request to Swarm Node $N_i$ to create a new directory and pre-dump the checkpoint image as pre-dump version $pre$-$dump V_i$.
+After pre-dumping the container checkpoint image or $C_i$ has previous version checkpoint images, Swarm Manager sends request to dump checkpoint image to Swarm Node $N_i$ to dump checkpoint version $V_i$. Whenever dumping checkpoint image, CRIU will track memory different to the previous checkpoint image or the pre-dumping checkpoint image do reduce image dick space. As is shown as Figure \ref{fig:Containers checkpoint versions in remote storage server}, every container has each pre-dump checkpoint directories and each pre-dump checkpoint directories has version-group versions checkpoint images.
+In line10-12, Swarm Manager Sends delete checkpoint request to $N_i$ to delete oldest Pre-dump version directory whenever container has more than three Pre-dump versions directory. 
 
 \begin{algorithm}[h]
     \caption{Checkpoint ticker algorithm}
+    \label{code:checkpointTicker}
     \begin{algorithmic}[1]
-        \State Set checkpoint-ticker time and version-group labels when create the container
-        \State Swarm Manager annlyzes labels
-        \label{code:checkpointTicker}
-        \While {Container running $\&$ ticker time pounding}
-            \If {version $\%$ version-group == 0 } 
-                \State pre-dump checkpoint image
-            \EndIf
-            \State dump checkpoint image
-            \If { version-group directory $>$ 3 } 
-                \State delete oldest pre-dump checkpoint directory
-            \EndIf
-            \State version = version + 1
-            \If {version $\%$ version-group == 0 } 
-                \State pre-dump = pre-dump + 1
-            \EndIf
-        \EndWhile
+	\Require
+		The set of Swarm Nodes: $\lbrace N_1,N_2,...,N_m \rbrace $;
+		The set of containers: $\lbrace C_1,C_2,...,C_n \rbrace$;
+		Version-group: $ VG_i $;
+		Checkpoint-ticker time: $ T_i $;
+	\Ensure
+		pre-dump images $ pre$-$dump V_i $; dump images $ V_i $ ;
+        \State Set $ T_i $ and $ VG_i $ labels when create the container $ C_i $;
+        \State initial $ V_i=0 $, $ pre$-$dump V_i=0 $;
+        \\
+        \For {each $ C_i $ in $ N_i $}
+        	\While {$ C_i $ running $ \& $ $ T_i $ pounding}
+            	\If {version $ \% $ $ VG_i $ == 0 } 
+					\State pre-dump checkpoint image $ pre $-$ dump V_i $;
+				\EndIf
+			\State dump checkpoint image $ V_i $;
+				\If { $ VG_i$ directory $ > $ 3 } 
+                	\State delete oldest pre-dump checkpoint $ pre $-$ dump V_i $ directory;
+				\EndIf
+            	\State $ V_i $ = $ V_ i$ + 1;
+            	\If {$ V_i $ $\%$ $VG_i$ == 0 } 
+          	      \State $ pre $-$ dump V_i $ = $ pre $-$ dump V_i $ + 1;
+        	    \EndIf
+     	   \EndWhile
+        \EndFor
     \end{algorithmic}
 \end{algorithm}
 
@@ -104,41 +111,48 @@ In addition, it also support high availability that whenever Docker Swarm primar
 \label{fig:Containers checkpoint versions in remote storage server}
 \end{figure}
 
-\subsection{Docker Swarm restore rescheduling policy}
-\begin{enumerate}[Step 1.]
-    \item Set reschedule:restore label when we create the container.
-    \item Swarm Manager analyzes restore label when the container start.
-    \item Whenever Swarm Nodes fail, Swarm Manager will restore the containers which Swarm Manager has dumped the last checkpoint version to another Swarm nodes.
-    \item To avoid dumping checkpoint version failing at the same time, if restoring last version failing, Swarm Manager will retry second last version checkpoint to restore. It will retry version-group(default 5) times.
-    \item If Swarm Manager retries version-group all fail, it will create and start a new container as normal Docker Swarm rescheduling policy.
-    
+\subsection{Docker Swarm Restore Rescheduling Policy}
+Algorithm \ref{code:Restore} gives a detailed explanation of restore Rescheduling Policy. In line1, we set $ R_i $ label when we create the container $C_i$ through Docker Swarm Manager. In line3-7, Whenever Swarm Nodes $ N_i $ fail, Swarm Manager will execute procedure \textsc{Restore container} that restore every containers $ C_i $ which has $ R_i $ label to another Swarm Nodes $ N_i $.
+
+In line9-21, each container $ C_i $ executes procedure \textsc{Restore container}, Swarm Manager will choose a Swarm Node $ N_r $ and create an empty container $ C_r $ in $ N_r $. In this step, Swarm Manager will check $ N_r $ has container image or not, if $ N_r $ doesn't have container image, $ N_r $ will download the container image from Docker remote registry and create the empty container $ C_r $.
+As a result of creating container $ C_r $, Swarm Manager restores the fail container $ C_i $ checkpoint image to $ C_r $. To avoid restoring fail, Swarm Manager will retry second last version checkpoint to restore, and it will retry version-group(default is 5) times. The container $ C_i $ checkpoint image will be delete after restoring the container  $ C_i $.
+
+If Swarm Manager retries version-group all fail, it will create and start a new container as normal Docker Swarm rescheduling policy.
+
 \begin{algorithm}[h]
     \caption{Restore rescheduling policy algorithm}
+    \label{code:Restore}
     \begin{algorithmic}[1]
-        \State Set restore rescheduling policy labels create the container
-        \State Swarm Manager anlyzes labels
+    	\Require
+		The set of Swarm Nodes: $ \lbrace N_1,N_2,...,N_m \rbrace $;
+		The set of containers: $ \lbrace C_1,C_2,...,C_n \rbrace $;
+		Version-group: $ VG_i $;
+		Checkpoint-ticker time: $ T_i $;
+		Restore rescheduling policy label:$ R_i $;
+	\Ensure
+		Restored containers:$ C_{ri} $;
+        \State Set $ R_i $ labels create the container;
         \\
-        \If {Swarm Node fail}
-        	\State \textsc{Restore container}
+        \If {$ N_i $ fail}
+        	\ForAll{$ C_i $ in fail $N_i$ has $ R_i $}
+        		\State \textsc{Restore Container};
+        	\EndFor
         \EndIf
         \\
-        \label{code:Restore}
-        \Procedure{Restore container}{}
-			\ForAll{containers on the fail Swarm Node}
-				\State Create a empty container on the Docker Swarm Node.
-				\For {version downto version - version-group}
-					\State Restore checkpoint[version] container
-				\EndFor
-				\State Delete the container checkpoint image
-				\If{Restore the container fail}
-					\State Restart the container on the Docker Swarm Node.
+        \Procedure{Restore Container}{}
+			\State $ N_r $ $\longleftarrow$Create a empty container $ C_r $
+			\For {$ V_i $ downto $ V_i $ - $ VG_i $}
+				\State $ C_{ri} $ $\longleftarrow$ Restore checkpoint $ V_i $;
+				\If{ Restore $ C_{ri} $ success }
+					\State \textbf{break}
 				\EndIf
 			\EndFor
+			\State Delete the container checkpoint image;
+			\If{Restore container $C_i$ fail}
+				\State $ C_r \longleftarrow $ Restart the container; $C_i$;
+			\EndIf
 		\EndProcedure
 	\end{algorithmic}
 \end{algorithm}
-
-\end{enumerate}
-
 \subsection{High availability of Swarm Manager in Docker Swarm checkpoint and restoration rescheduling policy}
 Whenever Docker Swarm primary manager fails, the others Swarm Manager replica instances will lead a new primary manager. After replica leading a new primary manager, it searching every Docker Node's containers which has checkpoint restore rescheduling policy's label. If the containers has checkpoint restore rescheduling policy's label, Docker Swarm new primary manager will restart container checkpoint tickers.
