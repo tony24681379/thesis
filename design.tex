@@ -71,6 +71,14 @@ In line6-9, if the container $C_i$ doesn't has any pre-dump image or newest vers
 After pre-dumping the container checkpoint image or $C_i$ has previous version checkpoint images, Swarm Manager sends request to dump checkpoint image to Swarm Node $N_i$ to dump checkpoint version $V_i$. Whenever dumping checkpoint image, CRIU will track memory different to the previous checkpoint image or the pre-dumping checkpoint image do reduce image dick space. As is shown as Figure \ref{fig:Containers checkpoint versions in remote storage server}, every container has each pre-dump checkpoint directories and each pre-dump checkpoint directories has version-group versions checkpoint images.
 In line10-12, Swarm Manager Sends delete checkpoint request to $N_i$ to delete oldest Pre-dump version directory whenever container has more than three Pre-dump versions directory. 
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=15cm]{figure/checkpoint_demo.png}
+\end{center}
+\caption{Containers checkpoint versions in remote storage server}
+\label{fig:Containers checkpoint versions in remote storage server}
+\end{figure}
+
 \begin{algorithm}[h]
     \caption{Checkpoint ticker algorithm}
     \label{code:checkpointTicker}
@@ -102,14 +110,6 @@ In line10-12, Swarm Manager Sends delete checkpoint request to $N_i$ to delete o
         \EndFor
     \end{algorithmic}
 \end{algorithm}
-
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=15cm]{figure/checkpoint_demo.png}
-\end{center}
-\caption{Containers checkpoint versions in remote storage server}
-\label{fig:Containers checkpoint versions in remote storage server}
-\end{figure}
 
 \subsection{Docker Swarm Restore Rescheduling Policy}
 Algorithm \ref{code:Restore} gives a detailed explanation of restore Rescheduling Policy. In line1, we set $ R_i $ label when we create the container $C_i$ through Docker Swarm Manager. In line3-7, Whenever Swarm Nodes $ N_i $ fail, Swarm Manager will execute procedure \textsc{Restore container} that restore every containers $ C_i $ which has $ R_i $ label to another Swarm Nodes $ N_i $.
