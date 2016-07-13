@@ -24,4 +24,9 @@ Michael~R Hines and Kartik Gopalan.
 \newblock In {\em Proceedings of the 2009 ACM SIGPLAN/SIGOPS international
   conference on Virtual execution environments}, pages 51--60. ACM, 2009.
 
+\bibitem{paksula2010persisting}
+Matti Paksula.
+\newblock Persisting objects in redis key-value database.
+\newblock {\em University of Helsinki, Department of Computer Science}, 2010.
+
 \end{thebibliography}

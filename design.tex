@@ -50,6 +50,10 @@ To migrate containers in Docker Swarm, we must avoid the containers which we wan
     \item Delete the checkpoint images.
     \item If the container was migrated which had set checkpoint restore rescheduling policy, it will restart checkpoint restore rescheduling policy \ref{sec:checkpoint restore rescheduling policy}.
 \end{enumerate}
+%
+%The first step of Creating the container on another Swarm Node is fast for all environments, because we assume that they already have downloaded their container images from the remote repository, thus, they don't need to transport container images from the other Swarm Node.
+%
+%Second, if we have version control of checkpoint the container, the container has to pre-dump the checkpoint image. After pre-dumping the checkpoint image, 
 
 \section{Docker Swarm checkpoint and restoration \\rescheduling policy}
 \label{sec:checkpoint restore rescheduling policy}
