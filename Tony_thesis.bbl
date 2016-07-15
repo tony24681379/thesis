@@ -24,6 +24,11 @@ Michael~R Hines and Kartik Gopalan.
 \newblock In {\em Proceedings of the 2009 ACM SIGPLAN/SIGOPS international
   conference on Virtual execution environments}, pages 51--60. ACM, 2009.
 
+\bibitem{kopytov2004sysbench}
+Alexey Kopytov.
+\newblock Sysbench: a system performance benchmark.
+\newblock {\em URL: http://sysbench. sourceforge. net}, 2004.
+
 \bibitem{paksula2010persisting}
 Matti Paksula.
 \newblock Persisting objects in redis key-value database.
