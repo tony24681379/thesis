@@ -4,13 +4,13 @@ Traditionally, people rely on a single supercomputer to calculate data or deploy
 However, the more computers we have, the larger of a power consumption problem we have to solve. At the same time, to make sure every computers' process in the cluster are alive, high availability becomes a more important role in cloud computing.
 
 Virtualization is a popular technology that is used wildly in cloud computing, including virtual operating systems, computer hardware platforms, storage devices and computer network resources.
-Virtual machine is a technology to emulate a particular computer like a real computer. It can partition the physical machine's resources, such as CPU, memory, storage, and network.
-A hypervisor uses execution to manage and share the host physical machine hardware, it allows many different virtual machines to be isolated from each other.
+Virtual Machine is a technology to emulate a particular computer like a real computer. It can partition the physical machine's resources, such as CPU, memory, storage, and network.
+A hypervisor uses execution to manage and share the host physical machine hardware, it allows many different Virtual Machines to be isolated from each other.
 
 Container is an operating system level virtualization which runs as an isolated process in userspace on the host operating system and shares the same operation system kernel with other containers.
 It provides kernel namespace such as PID, IPC, network, mount, and user namespace to isolate each container environment from the host operation system.
 In order to control hardware resource such as CPU, memory, network, and disk I/O, container uses cgroups to limit each of the containers resources.
-Container doesn't have hypervisor to isolate from the host operating system, therefore, it can offer better performance than virtual machine. There are already many software to control container, such as LXC \cite{helsley2009lxc}, LXD, Open VZ. For now, Docker \cite{Docker} is the most popular container engine. The Virtual Machine and Container architecture is shown as Fig \ref{fig:VM_vs_container}.
+Container doesn't have hypervisor to isolate from the host operating system, therefore, it can offer better performance than Virtual Machine. There are already many software to control container, such as LXC \cite{helsley2009lxc}, LXD, Open VZ. For now, Docker \cite{Docker} is the most popular container engine. The Virtual Machine and Container architecture is shown as Fig \ref{fig:VM_vs_container}.
 
 \begin{figure}[h]
 \begin{center}
