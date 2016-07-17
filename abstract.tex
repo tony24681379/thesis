@@ -1,14 +1,12 @@
 \begin{abstract}
-%\thispagestyle{plain} 
-%\setcounter{page}{2}
+\thispagestyle{plain} 
+\setcounter{page}{2}
 
+Container becomes a popular technology since Docker has published in 2013.
+Container technology has solved programmer and system maintainer when they have to deploy their applications in the servers.
+They just need to build the container images, and the container images can run on everywhere they want.
+Container technology also isolates each container environments just likes a single host machine.
+
+In this paper, we not only migrate the Docker containers between two physical machines, but also migrate the Docker containers in the Docker Swarm cluster.
+Furthermore, we enhance the high availability in the Docker Swarm cluster, the container can be set that checkpoint the container images to remote storage service; whenever the Docker Nodes are fail, the containers which run in the failed Docker Nodes will restore the newest checkpoint to the alive Docker Nodes as well.
 \end{abstract}
-
-% IEEEtran.cls defaults to using nonbold math in the Abstract.
-% This preserves the distinction between vectors and scalars. However,
-% if the conference you are submitting to favors bold math in the abstract,
-% then you can use LaTeX's standard command \boldmath at the very start
-% of the abstract to achieve this. Many IEEE journals/conferences frown on
-% math in the abstract anyway.
-
-% no keywords
