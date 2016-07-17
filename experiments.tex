@@ -37,28 +37,30 @@ Docker Swarm version & 1.2 \\ \hline
 \end{table}
 
 \section{Container Migration Time}
-As shown in Figure \ref{fig:Docker Swarm migration with remote storage server}, native is a reference line of the other kinds of experiment. We choose redis\cite{paksula2010persisting} as our migration container, because it uses memory to save its data. Therefore, we can check the correctness of redis data to make sure container migration is success.
+As shown in Figure \ref{fig:Docker Swarm migration with remote storage server}, native is a based line of the other kinds of experiment. We choose Redis\cite{paksula2010persisting} as our migration container, because it uses memory to save its data. Therefore, we can check the correctness of Redis data to make sure container migration is success.
 
 The first step of Creating the container on another Swarm Node is fast for all environments, because we assume that they already have downloaded their container images from the remote repository, thus, they don't need to transport container images from the other Swarm Node.
 
-Second, if checkpoint ticker has version control of checkpoint the container, the container has to pre-dump the checkpoint image. After pre-dumping the checkpoint image, dump checkpoint will track memory different with the pre-dump checkpoint image. On the other hand, checkpoint ticker dump the checkpoint image directly. The result of total checkpoint time, the version which has pre-dumping one's time is longer then the other one, because it has to add pre-dumping checkpoint time and dumping checkpoint time. Although the version which has pre-dumping one's is longer, but it provides the less frozen time to the container that improves CPU's utilization.
+Second, if checkpoint-ticker has track-memory of checkpoint the container, the container has to pre-dump the checkpoint image at the version-group created. After pre-dumping the checkpoint image, dumping checkpoint will track memory different with the pre-dump checkpoint image.
+On the other hand, checkpoint ticker dumps the checkpoint image directly. The result of total checkpoint time, the version which has track-memory one's time is longer than the other one, because it has to add pre-dumping checkpoint time and dumping checkpoint time.
+Although the version which has track-memory one's is longer, but it provides the less frozen time to the container that improves CPU's utilization.
 
 The third step is restoring the container to the container which has already been created in the Swarm Node. except NFS with memory, they all have nearly performance.
 
 The last step, it has big disparity of the delete checkpoint image step at pre-dumping version, because it has more image files and directories than the version without pre-dumping version.
 
-After all, the checkpoint and restoration of container in memory is more faster then hard disk in NFS. As result of Figure \ref{fig:Docker Swarm migration with remote storage server}, NFS with memory has the best performance in this experiment.
+After all, the checkpoint and restoration of container in memory is faster than hard disk in NFS. As result of Figure \ref{fig:Docker Swarm migration with remote storage server}, NFS with memory has the best performance in this experiment.
 
 \begin{figure}[h]
 \includegraphics[width=17cm]{figure/migration_time.png}
 \caption{Docker Swarm migration with remote storage server}
-\label{fig:Docker Swarm migration with remote storage server}
+\label{fig:Docker Swarm migration time with remote storage server}
 \end{figure}
 
 \section{Container Checkpoint Time Influence of Container Process Time}
-In this experiment, We use sysbench\cite{kopytov2004sysbench} to test performance of process's CPU execution time. Our parameter of sysbench is:
+In this experiment, sysbench\cite{kopytov2004sysbench} is used to test performance of process's CPU execution time. Our parameter of sysbench is:
 \begin{center}
-sysbench  --test=cpu --cpu-max-prime=20000 run
+sysbench --test=cpu --cpu-max-prime=20000 run
 \end{center}
 It will run around 30 seconds in native container without dumping any checkpoint.
 
@@ -67,13 +69,13 @@ In the checkpoint restore rescheduling policy (section \ref{sec:checkpoint resto
 As Figure \ref{fig:Checkpoint Time Influence CPU}, the result of the checkpoint-ticker period $ T_i $ is in direct ratio to the container process execution time.
 As observe the result, if the remote service doesn't use memory, and the checkpoint-ticker period $ T_i $ is smaller than 5, container will take a half time at dumping checkpoint image. If the checkpoint-ticker period $ T_i $ is smaller than 3, container even will take over twice times larger than the native container process execution time.
 
-As these results, the checkpoint-ticker period $ T_i $ has a big influence of container execution time, it is a important parameter in checkpoint restore rescheduling policy that if $ T_i $ is too small, the container will get a bad performance. But if $ T_i $ is too big, whenever Swarm Node fails, the restore container needs to execute the process again. The worst, it might lost some important data.
+As these results, the checkpoint-ticker period $ T_i $ has a big influence of container execution time, it is an important parameter in checkpoint restore rescheduling policy that if $ T_i $ is too small, the container will get a bad performance. But if $ T_i $ is too big, whenever Swarm Node fails, the restore container needs to execute the process again. The worst, it might lose some important data.
 
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=14cm]{figure/cpu_checkpoint_time.png}
 \end{center}
-\caption{Container Checkpoint Time of Container Process Time}
+\caption{Container checkpoint time of container process time}
 \label{fig:Checkpoint Time CPU}
 \end{figure}
 
@@ -81,9 +83,86 @@ As these results, the checkpoint-ticker period $ T_i $ has a big influence of co
 \begin{center}
 \includegraphics[width=14cm]{figure/cpu_checkpoint_period.png}
 \end{center}
-\caption{Container Checkpoint Time Influence of Container Process Time}
+\caption{ontainer Checkpoint Time Influence of Container Process Time}
 \label{fig:Checkpoint Time Influence CPU}
 \end{figure}
 
 \section{Container Memory Size Influence of Container Checkpoint Time}
+In this experiment, there are 3 different memory size processes measured. These processes allocate 1 MB, 100 MB, and 1 GB and change the memory with random values quickly in a while loop.
+As shown in Figure \ref{fig:1MB}, the pre-dump checkpoint time is at most 1/5 of the checkpoint time and track-memory checkpoint time is about the same as checkpoint time.
 
+However, in Figure \ref{fig:100MB}, the pre-dump checkpoint time is almost a halt of the checkpoint time in the 100 MB process.
+In this scenario, the track-memory checkpoint time is still nearly as checkpoint time, but the total checkpoint time is about 1.5 times longer then checkpoint time without track-memory, it means when every version-group is created, the first total checkpoint time is 1.5 times longer then checkpoint time without track-memory.
+
+In the 1 GB process, Figure \ref{fig:1GB} shows that the pre-dump checkpoint time is almost as same as the checkpoint time. It means that the total checkpoint time is about 2 times longer then checkpoint time without track-memory when every version-group is created. 
+
+In contrast, If the process has allocated the memory but didn't use it, the result will show as Figure \ref{fig:allocate memory}. This figure shows whatever how many memories are allocated in the process, the pre-dump checkpoint time and checkpoint time are all smaller than the process which is allocated memories with changing it.
+
+Follow these experiments, the memory's change has a big influence about container checkpoint time. It is not a effectiveness way when the process need to change memory a lot in the checkpoint-ticker period $ T_i $ time.
+
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=14cm]{figure/1MB.png}
+\end{center}
+\caption{1MB container process's checkpoint time}
+\label{fig:1MB}
+\end{figure}
+
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=14cm]{figure/100MB.png}
+\end{center}
+\caption{100MB container process's checkpoint time}
+\label{fig:100MB}
+\end{figure}
+
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=14cm]{figure/1GB.png}
+\end{center}
+\caption{1GB container process's checkpoint time}
+\label{fig:1GB}
+\end{figure}
+
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=14cm]{figure/allocate_mem_without_change.png}
+\end{center}
+\caption{Allocated memory without change process's checkpoint time}
+\label{fig:allocate memory}
+\end{figure}
+
+\section{Container Memory Size Influence of Container Checkpoint Image Size}
+
+\begin{table}[hbtp]
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline 
+• & Redis & Redis-benchmark \\ 
+\hline 
+Pre-dump & 9 MB & 14 MB \\ 
+\hline 
+Checkpoint-track-memory & 2.3 MB & 2.3 MB \\ 
+\hline 
+Checkpoint & 9.6 MB & 14 MB \\ 
+\hline 
+\end{tabular}
+\caption{Redis and Redis benchmark's checkpoint image size}
+\end{center}
+\end{table}
+
+\begin{table}[hbtp]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline 
+• & 1 MB & 100 MB & 1 GB & Allocate memory without changing\\ 
+\hline 
+Pre-dump & 1 MB & 100 MB & 1 GB & 102 KB\\ 
+\hline 
+Checkpoint-track-memory & 1 MB & 100 MB & 1 GB & 90.9 KB \\ 
+\hline 
+Checkpoint & 1 MB & 100 MB & 1 GB & 175.2 KB \\ 
+\hline 
+\end{tabular}
+\caption{process allocated memory's checkpoint image size}
+\end{center}
+\end{table}
