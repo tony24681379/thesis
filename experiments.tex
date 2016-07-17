@@ -3,7 +3,7 @@
 \section{Environment}
 We developed our experiments environment cluster were listed as table \ref{talbe:Host}, and created 4 virtual machines in the computer that each of their resource were listed as table \ref{talbe:Virtual Machine}. We mount NFS to each virtual machines, and test 2 type of NFS, hard disk, and memory(tmpfs). In addition, we test difference about dumping new checkpoint image each time and pre-dumping checkpoint image than dumping checkpoint follow pre-dump checkpoint image.
 
-\begin{table}[h]
+\begin{table}[hbtp]
 \begin{center}
 \begin{tabular}{|c|c|} \hline
 CPU & Intel Xeon(R) CPU-E5-2630 v3 @ 2.40GHx x 32 \\ \hline
@@ -20,7 +20,7 @@ Virtual Box version & 5.10.14 \\ \hline
 \label{talbe:Host}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[hbtp]
 \begin{center}
 \begin{tabular}{|c|c|} \hline
 CPU & Intel Xeon(R) CPU-E5-2630 v3 @ 2.40GHx x 4 \\ \hline
@@ -51,7 +51,7 @@ The last step, it has big disparity of the delete checkpoint image step at pre-d
 
 After all, the checkpoint and restoration of container in memory is faster than hard disk in NFS. As result of Figure \ref{fig:Docker Swarm migration with remote storage server}, NFS with memory has the best performance in this experiment.
 
-\begin{figure}[h]
+\begin{figure}[hbtp]
 \includegraphics[width=17cm]{figure/migration_time.png}
 \caption{Docker Swarm migration with remote storage server}
 \label{fig:Docker Swarm migration time with remote storage server}
@@ -71,7 +71,7 @@ As observe the result, if the remote service doesn't use memory, and the checkpo
 
 As these results, the checkpoint-ticker period $ T_i $ has a big influence of container execution time, it is an important parameter in checkpoint restore rescheduling policy that if $ T_i $ is too small, the container will get a bad performance. But if $ T_i $ is too big, whenever Swarm Node fails, the restore container needs to execute the process again. The worst, it might lose some important data.
 
-\begin{figure}[h]
+\begin{figure}[hbtp]
 \begin{center}
 \includegraphics[width=14cm]{figure/cpu_checkpoint_time.png}
 \end{center}
@@ -79,7 +79,7 @@ As these results, the checkpoint-ticker period $ T_i $ has a big influence of co
 \label{fig:Checkpoint Time CPU}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[hbtp]
 \begin{center}
 \includegraphics[width=14cm]{figure/cpu_checkpoint_period.png}
 \end{center}
@@ -88,6 +88,7 @@ As these results, the checkpoint-ticker period $ T_i $ has a big influence of co
 \end{figure}
 
 \section{Container Memory Size Influence of Container Checkpoint Time}
+\label{sec:Memory Size}
 In this experiment, there are 3 different memory size processes measured. These processes allocate 1 MB, 100 MB, and 1 GB and change the memory with random values quickly in a while loop.
 As shown in Figure \ref{fig:1MB}, the pre-dump checkpoint time is at most 1/5 of the checkpoint time and track-memory checkpoint time is about the same as checkpoint time.
 
@@ -100,7 +101,7 @@ In contrast, If the process has allocated the memory but didn't use it, the resu
 
 Follow these experiments, the memory's change has a big influence about container checkpoint time. It is not a effectiveness way when the process need to change memory a lot in the checkpoint-ticker period $ T_i $ time.
 
-\begin{figure}[hbtp]
+\begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=14cm]{figure/1MB.png}
 \end{center}
@@ -108,7 +109,7 @@ Follow these experiments, the memory's change has a big influence about containe
 \label{fig:1MB}
 \end{figure}
 
-\begin{figure}[hbtp]
+\begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=14cm]{figure/100MB.png}
 \end{center}
@@ -116,7 +117,7 @@ Follow these experiments, the memory's change has a big influence about containe
 \label{fig:100MB}
 \end{figure}
 
-\begin{figure}[hbtp]
+\begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=14cm]{figure/1GB.png}
 \end{center}
@@ -124,7 +125,7 @@ Follow these experiments, the memory's change has a big influence about containe
 \label{fig:1GB}
 \end{figure}
 
-\begin{figure}[hbtp]
+\begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=14cm]{figure/allocate_mem_without_change.png}
 \end{center}
@@ -132,7 +133,34 @@ Follow these experiments, the memory's change has a big influence about containe
 \label{fig:allocate memory}
 \end{figure}
 
-\section{Container Memory Size Influence of Container Checkpoint Image Size}
+\section{Container Memory Usage Influence of Container Checkpoint Image Size}
+In the section \ref{sec:Memory Size}, the container checkpoint time is direct ratio to process memory usage. In this section, the checkpoint images size will be estimated.
+
+In Table \ref{table:process image size}, it shows that the experiments in the section \ref{sec:Memory Size}. If the process uses more memory, the checkpoint image size will be larger. However, although process allocates memory a lot, the checkpoint size still small unless the memory be used.
+
+In Table \ref{table:process image size}, it shows that track-memory version of checkpoint is useless, because it takes more checkpoint time and more storage spaces. To change this view, we test Redis benchmark for daily application. The redis-benchmark command is:
+\begin{center}
+redis-benchmark -t set -l
+\end{center}
+
+The results shown as table \ref{table:redis image size}, the pre-dump checkpoint image size is similar as checkpoint image size, but the track-memory checkpoint image size is smaller than the others. This experiment result shows that the Table \ref{table:process image size} is the worst case in checkpoint image size. In this case, if track-memory checkpoint is used, it will save more than 2 times storage space.
+
+\begin{table}[hbtp]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline 
+• & 1 MB & 100 MB & 1 GB & Allocate memory without changing\\ 
+\hline 
+Pre-dump & 1 MB & 100 MB & 1 GB & 102 KB\\ 
+\hline 
+Checkpoint-track-memory & 1 MB & 100 MB & 1 GB & 90.9 KB \\ 
+\hline 
+Checkpoint & 1 MB & 100 MB & 1 GB & 175.2 KB \\ 
+\hline 
+\end{tabular}
+\caption{process allocated memory's checkpoint image size}
+\label{table:process image size}
+\end{center}
+\end{table}
 
 \begin{table}[hbtp]
 \begin{center}
@@ -148,21 +176,6 @@ Checkpoint & 9.6 MB & 14 MB \\
 \hline 
 \end{tabular}
 \caption{Redis and Redis benchmark's checkpoint image size}
-\end{center}
-\end{table}
-
-\begin{table}[hbtp]
-\begin{center}
-\begin{tabular}{|c|c|c|c|c|}\hline 
-• & 1 MB & 100 MB & 1 GB & Allocate memory without changing\\ 
-\hline 
-Pre-dump & 1 MB & 100 MB & 1 GB & 102 KB\\ 
-\hline 
-Checkpoint-track-memory & 1 MB & 100 MB & 1 GB & 90.9 KB \\ 
-\hline 
-Checkpoint & 1 MB & 100 MB & 1 GB & 175.2 KB \\ 
-\hline 
-\end{tabular}
-\caption{process allocated memory's checkpoint image size}
+\label{table:redis image size}
 \end{center}
 \end{table}
