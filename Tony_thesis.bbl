@@ -12,14 +12,6 @@ Docker.
 Docker swarm.
 \newblock \url{https://docs.docker.com/swarm/overview/}.
 
-\bibitem{clark2005live}
-Christopher Clark, Keir Fraser, Steven Hand, Jacob~Gorm Hansen, Eric Jul,
-  Christian Limpach, Ian Pratt, and Andrew Warfield.
-\newblock Live migration of virtual machines.
-\newblock In {\em Proceedings of the 2nd conference on Symposium on Networked
-  Systems Design \& Implementation-Volume 2}, pages 273--286. USENIX
-  Association, 2005.
-
 \bibitem{helsley2009lxc}
 Matt Helsley.
 \newblock Lxc: Linux container tools.

@@ -61,7 +61,7 @@ In migrating a container in Docker Swarm, a Constraint should be assigned in ord
 In Docker Swarm, it has Rescheduling Policy. As the reschedule policy is set when we start a container, whenever Swarm nodes fail, Swarm Manager will restart the containers to another alive Swarm Nodes.
 
 To improve this policy, a Checkpoint Ticker should be needed to keep every containers' checkpoints up to date.
-Whenever Swarm Nodes fail, Swarm Manager will restore the containers which their checkpoints has been dumped by Swarm Manager to the remote storage service.
+Whenever Swarm Nodes fail, Swarm Manager will restore the containers which their checkpoints has been dumped by Swarm Manager to the remote storage server.
 Otherwise, the Checkpoint Ticker provides the version of checkpoint image by tracking memory. It only dumps the different memory pages' checkpoint to new version checkpoint images.
 
 In addition, Docker Swarm Checkpoint and Restoration Rescheduling Policy also supports high availability whenever Docker Swarm primary manager fails, the others Swarm Manager replica instances will lead to a new primary manager. After replica has chosen a new primary manager, it will restart the container's Checkpoint Tickers.
