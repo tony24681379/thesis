@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{CRIU}
 Criu.
@@ -12,6 +12,60 @@ Docker.
 Docker swarm.
 \newblock \url{https://docs.docker.com/swarm/overview/}.
 
+\bibitem{armbrust2010view}
+Michael Armbrust, Armando Fox, Rean Griffith, Anthony~D Joseph, Randy Katz,
+  Andy Konwinski, Gunho Lee, David Patterson, Ariel Rabkin, Ion Stoica, et~al.
+\newblock A view of cloud computing.
+\newblock {\em Communications of the ACM}, 53(4):50--58, 2010.
+
+\bibitem{Bhattiprolu:2008:VSC:1400097.1400109}
+Sukadev Bhattiprolu, Eric~W. Biederman, Serge Hallyn, and Daniel Lezcano.
+\newblock Virtual servers and checkpoint/restart in mainstream linux.
+\newblock {\em SIGOPS Oper. Syst. Rev.}, 42(5):104--113, July 2008.
+
+\bibitem{biederman2006multiple}
+Eric~W Biederman and Linux Networx.
+\newblock Multiple instances of the global linux namespaces.
+\newblock In {\em Proceedings of the Linux Symposium}, volume~1, pages
+  101--112. Citeseer, 2006.
+
+\bibitem{chowdhury2010survey}
+NM~Mosharaf~Kabir Chowdhury and Raouf Boutaba.
+\newblock A survey of network virtualization.
+\newblock {\em Computer Networks}, 54(5):862--876, 2010.
+
+\bibitem{cully2008remus}
+Brendan Cully, Geoffrey Lefebvre, Dutch Meyer, Mike Feeley, Norm Hutchinson,
+  and Andrew Warfield.
+\newblock Remus: High availability via asynchronous virtual machine
+  replication.
+\newblock In {\em Proceedings of the 5th USENIX Symposium on Networked Systems
+  Design and Implementation}, pages 161--174. San Francisco, 2008.
+
+\bibitem{dua2014virtualization}
+Rajdeep Dua, A~Reddy Raja, and Dharmesh Kakadia.
+\newblock Virtualization vs containerization to support paas.
+\newblock In {\em Cloud Engineering (IC2E), 2014 IEEE International Conference
+  on}, pages 610--614. IEEE, 2014.
+
+\bibitem{gavrilovska2007high}
+Ada Gavrilovska, Sanjay Kumar, Himanshu Raj, Karsten Schwan, Vishakha Gupta,
+  Ripal Nathuji, Radhika Niranjan, Adit Ranadive, and Purav Saraiya.
+\newblock High-performance hypervisor architectures: Virtualization in hpc
+  systems.
+\newblock In {\em Workshop on System-level Virtualization for HPC (HPCVirt)}.
+  Citeseer, 2007.
+
+\bibitem{goldberg1974survey}
+Robert~P Goldberg.
+\newblock Survey of virtual machine research.
+\newblock {\em Computer}, 7(6):34--45, 1974.
+
+\bibitem{gray1991high}
+Jim Gray and Daniel~P. Siewiorek.
+\newblock High-availability computer systems.
+\newblock {\em Computer}, 24(9):39--48, 1991.
+
 \bibitem{helsley2009lxc}
 Matt Helsley.
 \newblock Lxc: Linux container tools.
@@ -22,9 +76,52 @@ Alexey Kopytov.
 \newblock Sysbench: a system performance benchmark.
 \newblock {\em URL: http://sysbench. sourceforge. net}, 2004.
 
+\bibitem{miller2007virtualization}
+Karissa Miller and Mahmoud Pegah.
+\newblock Virtualization: virtually at the desktop.
+\newblock In {\em Proceedings of the 35th annual ACM SIGUCCS fall conference},
+  pages 255--260. ACM, 2007.
+
 \bibitem{paksula2010persisting}
 Matti Paksula.
 \newblock Persisting objects in redis key-value database.
 \newblock {\em University of Helsinki, Department of Computer Science}, 2010.
+
+\bibitem{singh2008server}
+Aameek Singh, Madhukar Korupolu, and Dushmanta Mohapatra.
+\newblock Server-storage virtualization: integration and load balancing in data
+  centers.
+\newblock In {\em Proceedings of the 2008 ACM/IEEE conference on
+  Supercomputing}, page~53. IEEE Press, 2008.
+
+\bibitem{soltesz2007container}
+Stephen Soltesz, Herbert P{\"o}tzl, Marc~E Fiuczynski, Andy Bavier, and Larry
+  Peterson.
+\newblock Container-based operating system virtualization: a scalable,
+  high-performance alternative to hypervisors.
+\newblock In {\em ACM SIGOPS Operating Systems Review}, volume~41, pages
+  275--287. ACM, 2007.
+
+\bibitem{xavier2013performance}
+Miguel~G Xavier, Marcelo~V Neves, Fabio~D Rossi, Tiago~C Ferreto, Timoteo
+  Lange, and Cesar~AF De~Rose.
+\newblock Performance evaluation of container-based virtualization for high
+  performance computing environments.
+\newblock In {\em 2013 21st Euromicro International Conference on Parallel,
+  Distributed, and Network-Based Processing}, pages 233--240. IEEE, 2013.
+
+\bibitem{yan2011development}
+Li~Yan.
+\newblock Development and application of desktop virtualization technology.
+\newblock In {\em Communication Software and Networks (ICCSN), 2011 IEEE 3rd
+  International Conference on}, pages 326--329. IEEE, 2011.
+
+\bibitem{younge2011analysis}
+Andrew~J Younge, Robert Henschel, James~T Brown, Gregor Von~Laszewski, Judy
+  Qiu, and Geoffrey~C Fox.
+\newblock Analysis of virtualization technologies for high performance
+  computing environments.
+\newblock In {\em Cloud Computing (CLOUD), 2011 IEEE International Conference
+  on}, pages 9--16. IEEE, 2011.
 
 \end{thebibliography}
