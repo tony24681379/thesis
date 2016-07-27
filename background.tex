@@ -1,7 +1,7 @@
 \chapter{Background}
 \label{chap:background}
 \section{Docker}
-Docker \cite{Docker} is an open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux. Moreover, Docker has extra image management and layered file system to optimize the performance of container and reduce disk space. Docker images and Docker containers share the same image layer file if they have the same data. When Docker creates container, Docker will create a writable layer that allow the container application to change file system. Docker has two parts; Docker Client and Docker Daemon.
+Docker is an open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux. Moreover, Docker has extra image management and layered file system to optimize the performance of container and reduce disk space. Docker images and Docker containers share the same image layer file if they have the same data. When Docker creates container, Docker will create a writable layer that allow the container application to change file system. Docker has two parts; Docker Client and Docker Daemon.
 
 \begin{figure}[h]
 \begin{center}
@@ -21,7 +21,7 @@ Docker \cite{Docker} is an open-source project container engine. It provides an 
 \subsection{Docker Client}
 Docker is typical client/server architecture application.
 Docker Client is a \linebreak CLI (Client Line Interface) in Docker.
-Docker uses Docker Client to send and receive requests to Docker Daemon. Also, Docker supports remote RESTful API to send and receive HTTP requests to Docker Daemon.
+Docker uses Docker Client to send and receive requests to Docker Daemon. Also, Docker supports remote RESTful API \cite{christensen2009using} to send and receive HTTP requests to Docker Daemon.
 In additional, it has been implemented by more than 10 programming languages.
 
 \subsection{Docker Daemon}
@@ -35,7 +35,7 @@ When Docker Daemon is running, it will run a server that receives requests from 
 
 \subsection{runC}
 When Docker came into being, Docker used LXC as its container execution environment. After Docker version 0.9, Docker dropped LXC but used libcontainer as its default execution environment.
-runC is basically a repackaging of libcontainer, which is a CLI tool for running containers according to the OCI(Open Container Initiative) specification. It doesn't need any dependency from the operating system, it can control the Linux Kernel, including namespace, cgroups, apparmor, network, capabilities, firewall, etc.
+runC \cite{runc} is basically a repackaging of libcontainer, which is a CLI tool for running containers according to the OCI(Open Container Initiative) \cite{oci} specification. It doesn't need any dependency from the operating system, it can control the Linux Kernel, including namespace, cgroups, apparmor, network, capabilities, firewall, etc.
 runC provides a standard interface to support the containers management that Docker can use it to control the containers.
 
 \begin{figure}[h]
@@ -54,9 +54,9 @@ CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) stands for Checkpoint and Res
 %\subsubsection{Checkpoint}
 %\subsubsection{Restore}
 \section{Docker Swarm}
-There are many Docker cluster software, like Docker Swarm, Google Kubernetes, Apache Mesos, etc. We choose Docker Swarm because it supports native Docker API, and Docker usage. We don't need to learn the other Docker cluster software.
+There are many Docker cluster software, like Docker Swarm\cite{DockerSwarm}, Google Kubernetes \cite{bernstein2014containers}, Apache Mesos \cite{hindman2011mesos}, etc. We choose Docker Swarm because it supports native Docker API, and Docker usage. We don't need to learn the other Docker cluster software.
 
-Docker Swarm \cite{DockerSwarm} is a native clustering for Docker. It gathers several Docker engines together into one virtual Docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. Of course, it also supports Docker Client as well.
+Docker Swarm is a native clustering for Docker. It gathers several Docker engines together into one virtual Docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. Of course, it also supports Docker Client as well.
 
 In Docker Swarm, it has two components which are Swarm Manager and Swarm Node. Swarm Manager is the manager which handles Docker Client and RESTful API requests and manages multiple Docker Nodes' resources. Docker Node is an agent which sends heartbeat to Discovery Service to ensure Docker Daemon is alive in the cluster.
 

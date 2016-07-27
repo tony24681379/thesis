@@ -4,19 +4,28 @@
 Criu.
 \newblock \url{https://criu.org/Main_Page}.
 
-\bibitem{Docker}
-Docker.
-\newblock \url{https://www.docker.com/}.
-
 \bibitem{DockerSwarm}
 Docker swarm.
 \newblock \url{https://docs.docker.com/swarm/overview/}.
+
+\bibitem{oci}
+Oci.
+\newblock \url{https://www.opencontainers.org/}.
+
+\bibitem{runc}
+runc.
+\newblock \url{https://runc.io/}.
 
 \bibitem{armbrust2010view}
 Michael Armbrust, Armando Fox, Rean Griffith, Anthony~D Joseph, Randy Katz,
   Andy Konwinski, Gunho Lee, David Patterson, Ariel Rabkin, Ion Stoica, et~al.
 \newblock A view of cloud computing.
 \newblock {\em Communications of the ACM}, 53(4):50--58, 2010.
+
+\bibitem{bernstein2014containers}
+David Bernstein.
+\newblock Containers and cloud: From lxc to docker to kubernetes.
+\newblock {\em IEEE Cloud Computing}, 1(3):81--84, 2014.
 
 \bibitem{Bhattiprolu:2008:VSC:1400097.1400109}
 Sukadev Bhattiprolu, Eric~W. Biederman, Serge Hallyn, and Daniel Lezcano.
@@ -33,6 +42,22 @@ Eric~W Biederman and Linux Networx.
 NM~Mosharaf~Kabir Chowdhury and Raouf Boutaba.
 \newblock A survey of network virtualization.
 \newblock {\em Computer Networks}, 54(5):862--876, 2010.
+
+\bibitem{christensen2009using}
+Jason~H Christensen.
+\newblock Using restful web-services and cloud computing to create next
+  generation mobile applications.
+\newblock In {\em Proceedings of the 24th ACM SIGPLAN conference companion on
+  Object oriented programming systems languages and applications}, pages
+  627--634. ACM, 2009.
+
+\bibitem{clark2005live}
+Christopher Clark, Keir Fraser, Steven Hand, Jacob~Gorm Hansen, Eric Jul,
+  Christian Limpach, Ian Pratt, and Andrew Warfield.
+\newblock Live migration of virtual machines.
+\newblock In {\em Proceedings of the 2nd conference on Symposium on Networked
+  Systems Design \& Implementation-Volume 2}, pages 273--286. USENIX
+  Association, 2005.
 
 \bibitem{cully2008remus}
 Brendan Cully, Geoffrey Lefebvre, Dutch Meyer, Mike Feeley, Norm Hutchinson,
@@ -71,10 +96,40 @@ Matt Helsley.
 \newblock Lxc: Linux container tools.
 \newblock {\em IBM devloperWorks Technical Library}, 2009.
 
+\bibitem{hindman2011mesos}
+Benjamin Hindman, Andy Konwinski, Matei Zaharia, Ali Ghodsi, Anthony~D Joseph,
+  Randy~H Katz, Scott Shenker, and Ion Stoica.
+\newblock Mesos: A platform for fine-grained resource sharing in the data
+  center.
+\newblock In {\em NSDI}, volume~11, pages 22--22, 2011.
+
+\bibitem{joy2015performance}
+Ann~Mary Joy.
+\newblock Performance comparison between linux containers and virtual machines.
+\newblock In {\em Computer Engineering and Applications (ICACEA), 2015
+  International Conference on Advances in}, pages 342--346. IEEE, 2015.
+
 \bibitem{kopytov2004sysbench}
 Alexey Kopytov.
 \newblock Sysbench: a system performance benchmark.
 \newblock {\em URL: http://sysbench. sourceforge. net}, 2004.
+
+\bibitem{laadan2010linux}
+Oren Laadan and Serge~E Hallyn.
+\newblock Linux-cr: Transparent application checkpoint-restart in linux.
+\newblock In {\em Linux Symposium}, pages 159--172. Citeseer, 2010.
+
+\bibitem{liu2013performance}
+Haikun Liu, Hai Jin, Cheng-Zhong Xu, and Xiaofei Liao.
+\newblock Performance and energy modeling for live migration of virtual
+  machines.
+\newblock {\em Cluster computing}, 16(2):249--264, 2013.
+
+\bibitem{merkel2014docker}
+Dirk Merkel.
+\newblock Docker: lightweight linux containers for consistent development and
+  deployment.
+\newblock {\em Linux Journal}, 2014(239):2, 2014.
 
 \bibitem{miller2007virtualization}
 Karissa Miller and Mahmoud Pegah.
@@ -115,6 +170,11 @@ Li~Yan.
 \newblock Development and application of desktop virtualization technology.
 \newblock In {\em Communication Software and Networks (ICCSN), 2011 IEEE 3rd
   International Conference on}, pages 326--329. IEEE, 2011.
+
+\bibitem{yang2015checkpoint}
+Chen Yang.
+\newblock Checkpoint and restoration of micro-service in docker containers.
+\newblock 2015.
 
 \bibitem{younge2011analysis}
 Andrew~J Younge, Robert Henschel, James~T Brown, Gregor Von~Laszewski, Judy

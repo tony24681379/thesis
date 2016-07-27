@@ -1,4 +1,9 @@
 \chapter{Related Work}
 \label{chap:related}
 
-The migration of Virtual Machine \cite{clark2005live} has been researched for a long time,
+The migration of Virtual Machine \cite{clark2005live, liu2013performance} has been researched for a long time.
+However, it always has to take a long time because Virtual Machine's resources such as memory, and image spaces are large.
+
+Container migration is a growing researches. Most of researches used checkpoint and restoration to accomplish container migration.
+Checkpoint-restoration of Linux applications \cite{laadan2010linux} was a project since 2008. CRIU (Checkpoint/Restore in Userspace) is a project to implement checkpoint/restore functionality for Linux in userspace.
+In \cite{yang2015checkpoint}, it used CRIU to migrate Docker container.

@@ -38,7 +38,8 @@ Docker Swarm version & 1.2 \\ \hline
 \end{table}
 
 \section{Container Migration Time}
-As shown in Figure \ref{fig:Docker Swarm migration with remote storage server}, native is a based line of the other kinds of experiment. We choose Redis\cite{paksula2010persisting} as our migration container, because it uses memory to save its data. Therefore, we can check the correctness of Redis data to make sure container migration is success.
+As shown in Figure \ref{fig:Docker Swarm migration time with remote storage server}, native is a based line of the other kinds of experiment.
+We choose Redis\cite{paksula2010persisting} as our migration container, because it uses memory to save its data. Therefore, we can check the correctness of Redis data to make sure container migration is success.
 
 In the beginning, creating the container on another Swarm Nodes is fast for all environments because we assume that they have downloaded their container images from the remote repository, thus, they do not need to transport container images from the other Swarm Nodes.
 
@@ -51,7 +52,8 @@ Third, Restoring the container to the container which has already been created i
 
 Final, it has big disparity of the delete checkpoint image step at \textbf{Track-memory} method, because it has more image files and directories than the version without pre-dumping version.
 
-After all, the checkpoint and restoration of container in memory is faster than hard disk in NFS. As result of Figure \ref{fig:Docker Swarm migration with remote storage server}, NFS with memory has the best performance in this experiment.
+After all, the checkpoint and restoration of container in memory is faster than hard disk in NFS.
+As result of Figure \ref{fig:Docker Swarm migration time with remote storage server}, NFS with memory has the best performance in this experiment.
 
 \begin{figure}[hbtp]
 \includegraphics[width=17cm]{figure/migration_time.png}

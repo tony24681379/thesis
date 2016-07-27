@@ -11,7 +11,8 @@ A hypervisor \cite{younge2011analysis, gavrilovska2007high} uses execution to ma
 Container \cite{soltesz2007container} is an operating system level virtualization which runs as an isolated process in userspace on the host operating system and shares the same operation system kernel with other containers.
 It provides kernel namespace \cite{biederman2006multiple} such as PID, IPC, network, mount, and user namespace to isolate each container environment from the host operation system.
 In order to control hardware resource such as CPU, memory, network, and disk I/O, container uses cgroups to limit each of the containers resources.
-Container doesn't have hypervisor to isolate from the host operating system, therefore, it can offer better performance than Virtual Machine \cite{xavier2013performance, dua2014virtualization}. There are already many software to control container, such as LXC \cite{helsley2009lxc}, LXD, Open VZ, etc. For now, Docker \cite{Docker} is the most popular container engine. The Virtual Machine and Container architecture is shown as Figure \ref{fig:VM_vs_container}.
+Container doesn't have hypervisor to isolate from the host operating system, therefore, it can offer better performance than Virtual Machine \cite{xavier2013performance, dua2014virtualization, joy2015performance}.
+There are already many software to control container, such as LXC \cite{helsley2009lxc}, LXD, Open VZ, etc. For now, Docker \cite{merkel2014docker} is the most popular container engine. The Virtual Machine and Container architecture is shown as Figure \ref{fig:VM_vs_container}.
 
 \begin{figure}[h]
 \begin{center}
