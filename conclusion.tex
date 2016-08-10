@@ -4,5 +4,5 @@ CRIU provides the container for dumping the checkpoint image and restoring it in
 To support high availability in the Docker Swarm cluster, we also use checkpoint ticker and restoration to recover last container work state in the other Swarm Node. In addition, we implement pre-dump checkpoint to reduce container frozen time and storage spaces; in many cases, it saves about $ 10\% \sim 20\% $ frozen time and at least 200\% storage usage.
 
 In the future, we plan to implement live migration the Docker container to support network applications' migration.
-For now, we have done Docker network's restore, however, it will lost some packets when container migration and disconnect about 1 second.
-In addition, we want to extend power consumption algorithm in Docker Swarm to enhance power consumption saving in the Docker Swarm cluster.
+For now, we have done Docker network's restore, however, it will lost some packets when container migration and disconnect about 1 second, this problem will be solved
+In addition, Virtual Machine has some researches in power consumption algorithm, we want to extend power consumption algorithm in Docker Swarm to enhance power consumption saving in the Docker Swarm cluster.
