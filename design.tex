@@ -38,12 +38,12 @@ As Figure \ref{fig:Docker Swarm with remote storage server}, it shows a remote s
 \end{figure}
 
 \section{Docker Containers Migration in Docker Swarm}
-Docker Swarm creates containers through Swarm scheduler to dispatch Docker nodes. If a specific node needs to be assigned to create a container, filters such as Constraint, Affinity or Dependency should be set.
-In migrating a container in Docker Swarm, a Constraint should be assigned in order to avoid the container to migrate to the same node.
+Docker Swarm creates containers through Swarm scheduler to dispatch Docker nodes. If a specific node needs to be assigned to create a container, Swarm schedule parameter should be set.
+In migrating a container in Docker Swarm, the Swarm schedule parameter should be assigned in order to avoid the container to restore to the same node.
 \begin{enumerate}[Step 1.]
 	\item Check Docker Swarm cluster has at least two Swarm nodes.
     \item Parse Docker Client requests to analyse label and environment variables, and transform label and environment variables to Docker Swarm filters.
-    \item Constraint filter should be added to make sure the container will not be migrated to the same node.
+    \item The Swarm schedule parameter should be added to make sure the container will not be migrated to the same node.
     \item Create empty container on the Docker Swarm scheduler which node its pointing to, this could lead to downloading the container image if it doesn't exist in the be chosen node.
     \item Pre-dump the container's checkpoint images which we want to migrate to decrease container's frozen time.
     \item Dump the container's checkpoint images by tracking memory from the pre-dumped checkpoint images.
@@ -61,11 +61,15 @@ In migrating a container in Docker Swarm, a Constraint should be assigned in ord
 In Docker Swarm, it has Rescheduling Policy. As the reschedule policy is set when we start a container, whenever Swarm nodes fail, Swarm Manager will restart the containers to another alive Swarm Nodes.
 
 To improve this policy, a Checkpoint Ticker should be needed to keep every containers' checkpoints up to date.
-Whenever Swarm Nodes fail, Swarm Manager will restore the containers which their checkpoints has been dumped by Swarm Manager to the remote storage server.
+Whenever Swarm Nodes fail, Swarm Manager will restore the containers which their checkpoints have been dumped by Swarm Manager to the remote storage server.
 Otherwise, the Checkpoint Ticker provides the version of checkpoint image by tracking memory. It only dumps the different memory pages' checkpoint to new version checkpoint images.
 
+By experiment results, when many containers checkpoint in the same time, all of the containers checkpoint time will increase, especially the remote storage is hard disk.
+To avoid many containers checkpoint in the same time, the checkpoint requests from different containers will be collected in a checkpoint queue.
+It only allows one container checkpoint at a time.
+
 In addition, Docker Swarm Checkpoint and Restoration Rescheduling Policy also supports high availability whenever Docker Swarm primary manager fails, the others Swarm Manager replica instances will lead to a new primary manager. After replica has chosen a new primary manager, it will restart the container's Checkpoint Tickers.
-By experiment, it can save at least 2 times storage space.
+By experiment, it can save at least 2 times storage space when $VG_i$ bigger than 5.
 
 \subsection{Docker Swarm Container Checkpoint Ticker}
 Algorithm \ref{code:checkpointTicker} shows the Container Checkpoint Ticker's algorithm.
@@ -77,7 +81,7 @@ In line 4 to 18, for each container is running and $C_i$ checkpoint ticker perio
 In line 6 to 9, if the container $C_i$ does not has any pre-dump image or newest version-group $VG_i$ checkpoint is full, Swarm Manger will send the request to Swarm Node $N_i$ to create a new directory and pre-dump the checkpoint image as pre-dump version $pre$-$dump V_i$.
 After pre-dumping the container checkpoint image or $C_i$ has previous version checkpoint images, Swarm Manager will send requests to dump checkpoint image to Swarm Node $N_i$ to dump checkpoint version $V_i$. Whenever dumping checkpoint image, CRIU will track the memory difference to the previous checkpoint images or the pre-dumping checkpoint images to reduce image disk space usage.
 As it is shown as Figure \ref{fig:Containers checkpoint versions in remote storage server}, every container has each pre-dump checkpoint directories and each pre-dump checkpoint directories have version-group versions checkpoint images.
-In line 10 to 12, Swarm Manager sends delete checkpoint request to $N_i$ to delete oldest Pre-dump version directory whenever container has more than three Pre-dump versions directory. 
+In line 10 to 12, Swarm Manager sends delete checkpoint request to $N_i$ to delete oldest Pre-dump version directory whenever container has more than three Pre-dump versions directory.
 
 \begin{figure}[h]
 \begin{center}
@@ -101,26 +105,26 @@ In line 10 to 12, Swarm Manager sends delete checkpoint request to $N_i$ to dele
         \State Set $ T_i $ and $ VG_i $ labels when create the container $ C_i $;
         \State initial $ V_i=0 $, $ pre$-$dump V_i=0 $;
         \\
-        \For {each $ C_i $ in $ N_i $}
-        	\While {$ C_i $ running $ \& $ $ T_i $ pounding}
-            	\If {version $ \% $ $ VG_i $ == 0 } 
-					\State pre-dump checkpoint image $ pre $-$ dump V_i $;
+		\For {each $ C_i $ in $ N_i $}
+			\While {$ C_i $ running $ \& $ $ T_i $ pounding}
+				\If {version $ \% $ $ VG_i $ == 0 } 
+					\State add pre-dump checkpoint image $ pre $-$ dump V_i $ request to queue;
 				\EndIf
-			\State dump checkpoint image $ V_i $;
+			\State add dump checkpoint image $ V_i $ request to queue;
 				\If { $ VG_i$ directory $ > $ 3 } 
                 	\State delete oldest pre-dump checkpoint $ pre $-$ dump V_i $ directory;
 				\EndIf
             	\State $ V_i $ = $ V_ i$ + 1;
             	\If {$ V_i $ $\%$ $VG_i$ == 0 } 
-          	      \State $ pre $-$ dump V_i $ = $ pre $-$ dump V_i $ + 1;
-        	    \EndIf
-     	   \EndWhile
-        \EndFor
-    \end{algorithmic}
+					\State $ pre $-$ dump V_i $ = $ pre $-$ dump V_i $ + 1;
+				\EndIf
+			\EndWhile
+		\EndFor
+	\end{algorithmic}
 \end{algorithm}
 
 \subsection{Docker Swarm Restore Rescheduling Policy}
-Algorithm \ref{code:Restore} gives a specific explanation of Restore Rescheduling Policy. In line1, $ R_i $ label is set when the container $C_i$ is created by Docker Swarm Manager.
+Algorithm \ref{code:Restore} gives a specific explanation of Restore Rescheduling Policy. In line 1, $ R_i $ label is set when the container $C_i$ is created by Docker Swarm Manager.
 In line 3 to 7, whenever Swarm Nodes $ N_i $ fail, Swarm Manager will execute procedure \textsc{Restore container} that restores every container $ C_i $ which has $ R_i $ label to another Swarm Nodes $ N_i $.
 
 In line 9 to 21, each container $ C_i $ executes procedure \textsc{Restore container}; Swarm Manager will choose a Swarm Node $ N_r $ and create an empty container $ C_r $ in $ N_r $. In this step, Swarm Manager will check whether $ N_r $ has the container's image. If $ N_r $ doesn't have the container's image, $ N_r $ will download the container's image from Docker remote registry and create the empty container $ C_r $.
@@ -140,7 +144,7 @@ Whenever Swarm Manager's attempts to retry are all failed for $ VG_i $ times, it
 		Restore rescheduling policy label:$ R_i $;
 	\Ensure
 		Restored containers:$ C_{ri} $;
-        \State Set $ R_i $ labels create the container;
+        \State Set $ R_i $ labels when creating the container;
         \\
         \If {$ N_i $ fail}
         	\ForAll{$ C_i $ in fail $N_i$ has $ R_i $}
@@ -165,4 +169,6 @@ Whenever Swarm Manager's attempts to retry are all failed for $ VG_i $ times, it
 \end{algorithm}
 
 \subsection{High Availability of Swarm Manager in Docker Swarm Checkpoint and Restore Rescheduling Policy}
-Whenever Docker Swarm primary manager fails, the others Swarm Manager replica instances will lead a new primary manager. After replica leading a new primary manager, it searches every Docker Node's containers which has Checkpoint and Restore Rescheduling Policy's label. If the containers have Checkpoint and Restore Rescheduling Policy's labels, Docker Swarm new primary manager will restart container checkpoint tickers.
+Whenever Docker Swarm primary manager fails, the others Swarm Manager replica instances will lead a new primary manager.
+After replica leading a new primary manager, it searches every Docker Node's containers which has Checkpoint and Restore Rescheduling Policy's label.
+If the containers have Checkpoint and Restore Rescheduling Policy's labels, Docker Swarm new primary manager will restart container checkpoint tickers.

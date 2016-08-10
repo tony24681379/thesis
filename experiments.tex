@@ -65,15 +65,14 @@ As result of Figure \ref{fig:Docker Swarm migration time with remote storage ser
 \label{sec:CPU Time}
 In this experiment, sysbench\cite{kopytov2004sysbench} is used to test performance of process's CPU execution time. Our parameter of sysbench is:
 \begin{center}
-sysbench --test=cpu --cpu-max-prime=20000 run
+sysbench --test=cpu --cpu-max-prime=200000 run
 \end{center}
-It will run around 30 seconds in native container without dumping any checkpoint.
+It needs to run around 11 minutes in native container without dumping any checkpoint to find the 200000th prime number.
 
-In Figure \ref{fig:Checkpoint Time CPU}, this figure lists every checkpoint time in the experiment environments, also, if remote server uses the memory to save the checkpoint images, it will got better performance.
+In Figure \ref{fig:Checkpoint Time CPU}, this figure lists every checkpoint time in the experiment environments, also, if remote storage uses the memory to save the checkpoint images, it will get better performance.
 In the checkpoint restore rescheduling policy (section \ref{sec:checkpoint restore rescheduling policy}), we set a parameter of checkpoint-ticker period $ T_i $ which will checkpoint repeatedly for every checkpoint-ticker over.
-As Figure \ref{fig:Checkpoint Time Influence CPU}, the result of the checkpoint-ticker period $ T_i $ is in direct ratio to the container process execution time.
-As observe the result, if the remote storage server doesn't use memory, and the checkpoint-ticker period $ T_i $ is smaller than 5, container will take over a half native execution time at dumping checkpoint image. If the checkpoint-ticker period $ T_i $ is smaller than 3, container even will take over twice times larger than the native container process execution time.
 
+As Figure \ref{fig:Checkpoint Time Influence CPU}, the result of the checkpoint-ticker period $ T_i $ is in direct ratio to the container process execution time.
 As these experiment results, the checkpoint-ticker period $ T_i $ has a big influence of container execution time, it is an important parameter in checkpoint restore rescheduling policy that if $ T_i $ is too small, the container will get a bad performance. But if $ T_i $ is too big, whenever Swarm Node fails, the restore container needs to execute the process again. The worst, it might lose some important data. However, no matter the total checkpoint time in \textbf{Track-memory} method, the process's execution time are nearly 
 \textbf{Direct} method. This situation shows that the pre-dump checkpoint time has no influence on the process's execution time.
 
@@ -149,7 +148,6 @@ In Table \ref{table:process image size}, it shows that track-memory version of c
 \begin{center}
 redis-benchmark -t set -l
 \end{center}
-
 This command will send 100000 requests with 50 parallel clients. The results shown as table \ref{table:redis image size}, the pre-dump checkpoint image size is similar as checkpoint image size, but the track-memory checkpoint image size is smaller than the others. This experiment result shows that the Table \ref{table:process image size} is the worst case in checkpoint image size. In this case, if track-memory checkpoint is used, it will save more than 2 times storage space.
 
 \begin{table}[hbtp]
@@ -184,5 +182,48 @@ Checkpoint & 9.6 MB & 14 MB \\
 \end{tabular}
 \caption{Redis and Redis benchmark's checkpoint image size}
 \label{table:redis image size}
+\end{center}
+\end{table}
+
+\section{The Influence of Many Containers Checkpoint in The Same Time on Container Checkpoint Time}
+Figure \ref{fig:many containers} demonstrates the influence of checkpoint time when many containers checkpoint in the same.
+As more containers checkpoint in the same time, the more checkpoint time for each container has to take.
+In storing in disk case, it almost needs twice times when 4 containers checkpointing in the same time. That's the reason that we implement checkpoint queue to solve this problem.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/many_containers.png}
+\end{center}
+\caption{Many containers checkpoint in the same time}
+\label{fig:many containers}
+\end{figure}
+
+\section{The Influence of Container Checkpoint Versions on Container Checkpoint Time}
+As Figure \ref{fig:versions}, \textbf{Direct} method's checkpoint time average have 2 horizontal lines.
+Two \textbf{Track-memory} method's trendline are slow increasing when the container checkpoint versions growing up.
+Each of them has one point of intersections with \textbf{Direct} method's checkpoint time line, the values are and 5 and 16.
+Follow these results, checkpoint-version default value sets to 5 is a better choice, and it should not exceed than 16.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/versions.png}
+\end{center}
+\caption{Checkpoint versions of container checkpoint time}
+\label{fig:versions}
+\end{figure}
+
+\begin{table}[hbtp]
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+• & Pre-dump & Checkpoint & Checkpoint \textbf{Track-memory}\\
+\hline
+Checkpoint time & $ \alpha x $ & $ x $ & $ \leq x $ \\
+\hline
+Disk space & $ \beta y $ & $ \beta y $ & $ y $\\
+\hline
+\end{tabular}
+\caption{Relation of Checkpoint version}
+\label{table:versions}
 \end{center}
 \end{table}

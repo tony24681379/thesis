@@ -137,6 +137,12 @@ Karissa Miller and Mahmoud Pegah.
 \newblock In {\em Proceedings of the 35th annual ACM SIGUCCS fall conference},
   pages 255--260. ACM, 2007.
 
+\bibitem{mirkin2008containers}
+Andrey Mirkin, Alexey Kuznetsov, and Kir Kolyshkin.
+\newblock Containers checkpointing and live migration.
+\newblock In {\em Proceedings of the Linux Symposium}, volume~2, pages 85--90,
+  2008.
+
 \bibitem{paksula2010persisting}
 Matti Paksula.
 \newblock Persisting objects in redis key-value database.
