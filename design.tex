@@ -78,10 +78,10 @@ Each $T_i$ in the Docker Swarm cluster has its starting time and time ticker, ti
 Checkpoint version $V_i=0$ and pre-dump checkpoint version $pre$-$dump V_i=0$ should be defined for each container $C_i$.
 
 In line 4 to 18, for each container is running and $C_i$ checkpoint ticker period $T_i$ pounds, $C_i$, Swarm Manger will do line 5 to 17.
-In line 6 to 9, if the container $C_i$ does not has any pre-dump image or newest version-group $VG_i$ checkpoint is full, Swarm Manger will send the request to Swarm Node $N_i$ to create a new directory and pre-dump the checkpoint image as pre-dump version $pre$-$dump V_i$.
+In line 6 to 11, if the container $C_i$ does not has any pre-dump image, newest version-group $VG_i$ checkpoint is full or previous pre-dump average images size over 500 MB, Swarm Manger will send the request to Swarm Node $N_i$ to create a new directory and pre-dump the checkpoint image as pre-dump version $pre$-$dump V_i$.
 After pre-dumping the container checkpoint image or $C_i$ has previous version checkpoint images, Swarm Manager will send requests to dump checkpoint image to Swarm Node $N_i$ to dump checkpoint version $V_i$. Whenever dumping checkpoint image, CRIU will track the memory difference to the previous checkpoint images or the pre-dumping checkpoint images to reduce image disk space usage.
 As it is shown as Figure \ref{fig:Containers checkpoint versions in remote storage server}, every container has each pre-dump checkpoint directories and each pre-dump checkpoint directories have version-group versions checkpoint images.
-In line 10 to 12, Swarm Manager sends delete checkpoint request to $N_i$ to delete oldest Pre-dump version directory whenever container has more than three Pre-dump versions directory.
+In line 12 to 14, Swarm Manager sends delete checkpoint request to $N_i$ to delete oldest Pre-dump version directory whenever container has more than three Pre-dump versions directory.
 
 \begin{figure}[h]
 \begin{center}
@@ -107,8 +107,10 @@ In line 10 to 12, Swarm Manager sends delete checkpoint request to $N_i$ to dele
         \\
 		\For {each $ C_i $ in $ N_i $}
 			\While {$ C_i $ running $ \& $ $ T_i $ pounding}
-				\If {version $ \% $ $ VG_i $ == 0 } 
-					\State add pre-dump checkpoint image $ pre $-$ dump V_i $ request to queue;
+				\If {version $ \% $ $ VG_i $ == 0 }
+					\If {$ pre$-$dump V_i - 1$ average images size$ < $  500 MB}
+						\State add pre-dump checkpoint image $ pre $-$ dump V_i $ request to queue;
+					\EndIf
 				\EndIf
 			\State add dump checkpoint image $ V_i $ request to queue;
 				\If { $ VG_i$ directory $ > $ 3 } 

@@ -150,6 +150,10 @@ redis-benchmark -t set -l
 \end{center}
 This command will send 100000 requests with 50 parallel clients. The results shown as table \ref{table:redis image size}, the pre-dump checkpoint image size is similar as checkpoint image size, but the track-memory checkpoint image size is smaller than the others. This experiment result shows that the Table \ref{table:process image size} is the worst case in checkpoint image size. In this case, if track-memory checkpoint is used, it will save more than 2 times storage space.
 
+As these results, we observe the container checkpoint image size is related with the container checkpoint time.
+When the container checkpoint time increasing, the container checkpoint image size will increase, too.
+To avoid unnecessary container pre-dump, whenever container checkpoint group's average image size over 500 MB, next checkpoint group will not pre-dump the container checkpoint.
+
 \begin{table}[hbtp]
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|}\hline 
@@ -211,19 +215,3 @@ Follow these results, checkpoint-version default value sets to 5 is a better cho
 \caption{Checkpoint versions of container checkpoint time}
 \label{fig:versions}
 \end{figure}
-
-\begin{table}[hbtp]
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-• & Pre-dump & Checkpoint & Checkpoint \textbf{Track-memory}\\
-\hline
-Checkpoint time & $ \alpha x $ & $ x $ & $ \leq x $ \\
-\hline
-Disk space & $ \beta y $ & $ \beta y $ & $ y $\\
-\hline
-\end{tabular}
-\caption{Relation of Checkpoint version}
-\label{table:versions}
-\end{center}
-\end{table}
