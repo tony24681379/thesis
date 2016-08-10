@@ -38,21 +38,9 @@ When Docker came into being, Docker used LXC as its container execution environm
 runC \cite{runc} is basically a repackaging of libcontainer, which is a CLI tool for running containers according to the OCI(Open Container Initiative) \cite{oci} specification. It doesn't need any dependency from the operating system, it can control the Linux Kernel, including namespace, cgroups, apparmor, network, capabilities, firewall, etc.
 runC provides a standard interface to support the containers management that Docker can use it to control the containers.
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=6cm]{figure/docker_LXC.png}
-\end{center}
-\caption{Docker Daemon execution environment with runC and LXC}
-\label{fig:docker_LXC}
-\end{figure}
-
 \section{CRIU}
 CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) stands for Checkpoint and Restore in User Space, creates a complete snapshot of the state of a process, including things like memory contents, file descriptors, and even open TCP connections. It can be used for suspending and resuming processes, or migrating them from one machine to another.
 
-%\subsection{Checkpoint}
-%\subsubsection{Pre-dump}
-%\subsubsection{Checkpoint}
-%\subsubsection{Restore}
 \section{Docker Swarm}
 There are many Docker cluster software, like Docker Swarm\cite{DockerSwarm}, Google Kubernetes \cite{bernstein2014containers}, Apache Mesos \cite{hindman2011mesos}, etc. We choose Docker Swarm because it supports native Docker API, and Docker usage. We don't need to learn the other Docker cluster software.
 
@@ -80,36 +68,6 @@ Otherwise, it also supports any modules that satisfy Discovery API interface.
 Docker Swarm scheduler decides which nodes to use when creating and running a container. It has two steps:
 First, the scheduler follows user's filters to decide which nodes conform to it.
 Secondly, it undergoes multiple strategies to select the best node in the cluster.
-
-\subsubsection{Filter}
-Filters are divided into two categories;
-Container configuration filters operate on characteristics of containers, or on the availability of images on a host.
-Node filters operate on characteristics of the Docker host or on the configuration of the Docker Daemon.
-
-The container configuration filters are:
-\begin{itemize}
-    \item Affinity
-    \item Dependency
-    \item Port filter
-\end{itemize}
-The node filters are:
-\begin{itemize}
-    \item Constraint
-    \item Container slots
-    \item Health filter
-\end{itemize}
-
-\subsubsection{Strategies}
-The Docker Swarm scheduler features multiple strategies for ranking nodes. Docker Swarm currently supports these values:
-\begin{itemize}
-    \item Spread
-    \item Binpack
-    \item Random
-\end{itemize}
-Spread and Binpack strategies compute rank according to a node’s available CPU, its RAM, and the number of containers it has. It selects a node at random.
-Under the Spread strategy, Swarm chooses the node with the least number of containers.
-The Binpack strategy chooses the node which has executed most containers.
-The Random strategy uses no computation and chooses nodes at random regardless of their available CPU or RAM.
 
 \subsection{High availability of Swarm Manager}
 In Docker Swarm, Swarm Manager responds to the cluster and manages the resources of multiple Docker Nodes at scale. If Swarm Manager dies, we have to create a new one and deal with the interruption of service.
