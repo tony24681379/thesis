@@ -1,7 +1,10 @@
 \chapter{Background}
 \label{chap:background}
+
+This chapter introduces the used packages, including Docker, Docker Swarm, and CRIU (Checkpoint-and-Restore In Userspace).
+
 \section{Docker}
-Docker is an open-source project container engine. It provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux. Moreover, Docker has extra image management and layered file system to optimize the performance of container and reduce disk space. Docker images and Docker containers share the same image layer file if they have the same data. When Docker creates container, Docker will create a writable layer that allow the container application to change file system. Docker has two parts; Docker Client and Docker Daemon.
+Docker is an open-source container engine, which provides an additional layer of abstraction and automation of operating-system-level virtualization in Linux.  Moreover, Docker has extra image management and layered file system to optimize the performance of container and to reduce disk space. Docker images and Docker containers share the same image layer file if they have the same data. To initialize a container, Docker creates a writable layer that allow the container application to change file system.  
 
 \begin{figure}[h]
 \begin{center}
@@ -18,35 +21,24 @@ Docker is an open-source project container engine. It provides an additional lay
 \caption{Single node Docker}
 \end{figure}
 
-\subsection{Docker Client}
-Docker is typical client/server architecture application.
-Docker Client is a \linebreak CLI (Client Line Interface) in Docker.
-Docker uses Docker Client to send and receive requests to Docker Daemon. Also, Docker supports remote RESTful API \cite{christensen2009using} to send and receive HTTP requests to Docker Daemon.
-In additional, it has been implemented by more than 10 programming languages.
-
-\subsection{Docker Daemon}
-Docker Daemon is a daemon that runs as system service. It has three of the most importance features: 
+Docker is a typical client-server architecture, which consists of two parts: Docker client and Docker daemon. Docker client provides the CLI (Command Line Interface) to send/receive requests to/from Docker Daemon.  Also, Docker supports RESTful API \cite{christensen2009using} to communicate with Docker daemon. Docker daemon runs as system service, which serves three  importance functions: 
 \begin{itemize}
-    \item Receive and handle requests from Docker Clients.
+    \item Receive and handle requests from Docker clients.
     \item Manage containers.
     \item Manage container images.
 \end{itemize}
-When Docker Daemon is running, it will run a server that receives requests from Docker Clients or remote RESTful API. After receiving requests, server will pass the requests by router to find the handler to handle the requests. By default, Docker Daemon listens to UNIX socket requests, it serves root permission, or docker group membership. Whenever user wants Docker Daemon to listen to remote RESTful API or Docker Swarm requests, it has to enable the TCP socket.
+When running, a Docker daemon will receive requests from Docker clients or remote RESTful API. After receiving requests, daemon will pass the requests to a router, which finds the corresponding functions to handle the requests. By default, Docker daemon listens to UNIX socket requests.  To receive remote RESTful APIs or Docker Swarm requests, the daemon listens to the TCP socket.
 
 \subsection{runC}
-When Docker came into being, Docker used LXC as its container execution environment. After Docker version 0.9, Docker dropped LXC but used libcontainer as its default execution environment.
-runC \cite{runc} is basically a repackaging of libcontainer, which is a CLI tool for running containers according to the OCI(Open Container Initiative) \cite{oci} specification. It doesn't need any dependency from the operating system, it can control the Linux Kernel, including namespace, cgroups, apparmor, network, capabilities, firewall, etc.
-runC provides a standard interface to support the containers management that Docker can use it to control the containers.
-
-\section{CRIU}
-CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) stands for Checkpoint and Restore in User Space, creates a complete snapshot of the state of a process, including things like memory contents, file descriptors, and even open TCP connections. It can be used for suspending and resuming processes, or migrating them from one machine to another.
+After version 0.9, Docker used \emph{libcontainer} as its default execution environment, and \emph{runC} \cite{runc} is a repackaging of \emph{libcontainer}, which provides CLI to support the containers management, such as the control of namespace, cgroups, apparmor, network, capabilities, firewall, etc.
 
 \section{Docker Swarm}
-There are many Docker cluster software, like Docker Swarm\cite{DockerSwarm}, Google Kubernetes \cite{bernstein2014containers}, Apache Mesos \cite{hindman2011mesos}, etc. We choose Docker Swarm because it supports native Docker API, and Docker usage. We don't need to learn the other Docker cluster software.
+% already said in the introduction.
+%There are many Docker cluster software, like Docker Swarm\cite{DockerSwarm}, Google Kubernetes \cite{bernstein2014containers}, Apache Mesos \cite{hindman2011mesos}, etc. We choose Docker Swarm because it supports native Docker API, and Docker usage. We don't need to learn the other Docker cluster software.
 
-Docker Swarm is a native clustering for Docker. It gathers several Docker engines together into one virtual Docker engine. Docker Swarm serves standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. Of course, it also supports Docker Client as well.
+Docker Swarm is an orchestration tool for Docker, which gathers several Docker engines together into one virtual Docker engine. Docker Swarm provides standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. Of course, it also supports Docker client as well.
 
-In Docker Swarm, it has two components which are Swarm Manager and Swarm Node. Swarm Manager is the manager which handles Docker Client and RESTful API requests and manages multiple Docker Nodes' resources. Docker Node is an agent which sends heartbeat to Discovery Service to ensure Docker Daemon is alive in the cluster.
+Docker Swarm has two components: Swarm manager and Swarm node. A Swarm manager is the manager which handles the requests from Docker client and RESTful API and manages multiple Docker nodes'. A Swarm node is an agent which sends heartbeats to the discovery service to ensure the Docker daemons are alive in the cluster.
 
 \begin{figure}[h]
 \begin{center}
@@ -56,25 +48,47 @@ In Docker Swarm, it has two components which are Swarm Manager and Swarm Node. S
 \end{figure}
 
 \subsection{Discovery services}
-Docker Swarm provides multiple Discovery Services backends. They are used to discover the nodes in the cluster. There are:
+Docker Swarm provides multiple Discovery Services in the back-ends, which are used to discover the nodes in the cluster. There are:
 \begin{itemize}
     \item Using a distributed key/value store, like Consul, Etcd and Zookeeper.
     \item A static file or list of nodes.
     \item Docker Hub as a hosted discovery service.
 \end{itemize}
-Otherwise, it also supports any modules that satisfy Discovery API interface.
+In addition, it supports any modules that satisfy Discovery API interface.
 
 \subsection{Scheduler}
-Docker Swarm scheduler decides which nodes to use when creating and running a container. It has two steps:
-First, the scheduler follows user's filters to decide which nodes conform to it.
-Secondly, it undergoes multiple strategies to select the best node in the cluster.
+Docker Swarm scheduler decides which nodes to use when creating and running a container. The scheduling has two steps:
+First, the scheduler follows user's filters to decide which nodes can be used.
+Second, the scheduler undergoes multiple strategies to select the best node in the cluster.
 
 \subsection{High availability of Swarm Manager}
-In Docker Swarm, Swarm Manager responds to the cluster and manages the resources of multiple Docker Nodes at scale. If Swarm Manager dies, we have to create a new one and deal with the interruption of service.
+Swarm Manager responds to the cluster and manages the resources of multiple Docker Daemons which are served by Swarm Nodes {\color{red} is Docker node or Swarm node? you used both and very confusing}. If the Swarm manager dies, a new one will be created to handle with the interruption of service.
 
-The High availability feature allows Docker Swarm has multiple Swarm Manager instances. We can create a primary manager and multiple replica instances.
-Whenever we send requests to replica instances, it will be automatically proxied to the primary manager.
+The high availability feature allows Docker Swarm has multiple Swarm Manager instances. System manager can create a primary manager and multiple replica instances.
+Whenever requests are sent to replica instances, requests will be automatically proxied to the primary manager.
 In addition, if the primary manager fails, the other replica instances will lead a new primary manager.
 
 \subsection{High availability of Docker Swarm containers}
-In Docker Swarm, it has a rescheduling policy. As we set the reschedule policy when we start a container, whenever Swarm nodes fail, Swarm Manager will restart all of the containers to another alive Swarm Nodes.
+Docker Swarm has a rescheduling policy, which can be set when a container is started.  Whenever Swarm nodes fail, Swarm manager will restart all of the containers in that Swarm node to other alive Swarm Nodes.
+
+\section{CRIU}
+CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) is a package for checkpointing and restoring of a process.  The checkpointing creates a complete snapshot of a process's state, including  memory contents, file descriptors, and open TCP connections.  CRIU can be used for suspending and resuming processes, or migrating them from one machine to another.
+{\color{red} more introduction about CRIU.  Like multiple version.  What's the differences between predump and dump. How it takes the snapshot, etc.  Put some figures....}
+
+\subsection{Checkpoint}
+The checkpoint procedure relies on /proc file system which CRIU takes the information of process.  It needs the pipes parameters, descriptors information, and memory maps. There are 3 steps:
+\begin{enumerate}[Step 1.]
+	\item Walk through the /proc/\$pid/task directory recursively and collect the process tree.
+    \item Collect tasks' resources and dump to the image files.  If the request is pre-dump, CRIU will just collect process tree, and memory pages.  Otherwise, it will collect process tree, memory pages, namespaces, cgroups, share memory, and networks, etc.  While checkpoint request parameter has track-memory, CRIU will compare checkpoint images and memory pages to reduce storage space.
+    \item After dumped, CRIU detaches from tasks and they continue to
+execute.
+\end{enumerate}
+
+\subsection{Restore}
+When CRIU restores the process, it will morph itself into the tasks it restore.   There are 4 steps:
+\begin{enumerate}[Step 1.]
+	\item CRIU reads image files and resolves which processes share with which resources.  Later shared resources are restored by someone process and all the others either inherit one on the 2nd stage (like session) or obtain in some other way.
+    \item CRIU calls fork() procedure many times by process tree to create the processes which are needed to be restored.
+    \item Restores all resources such as memory mappings, timers, namespaces, cgroups, threads, etc.
+    \item Morph CRIU itself into the tasks and continue the process.
+\end{enumerate}

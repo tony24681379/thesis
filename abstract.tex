@@ -1,12 +1,8 @@
 \begin{abstract}
 \thispagestyle{plain} 
 \setcounter{page}{2}
+More and more software developers and information-technology professionals embrace the container technology, because it packs the required libraries and settings of software into a single image so that the deployment can be easily done anywhere without the issues of compatibility.  On top of single containers, orchestration tools are essential to automate the deployment and operation of complex systems that involve multiple containers on cluster of machines.  In this thesis, we present the idea of using checkpoint-and-restore technique to enhance the functionality of Docker Swarm, a state-of-art orchestration tool for Docker containers. Two major functions are focused:  high availability and migration.  We used multi-version checkpoints to enhance the availability of containers and investigated the optimal storage and performance for checkpoint-and-restore.  For migration, we leverage the shared storage and Docker Swarm's scheduler to make migration easier.  We also studied the possibility of live migration for our implementation.  Experiments show that {\color{red} 
+pre-dump and track-memory will save about 10\% $ \sim $ 20\% container checkpoint frozen time and at least 200\% storage space.
+}
 
-Container becomes a popular technology since Docker has published in 2013.
-Container technology has solved programmer and system maintainer when they have to deploy their applications in the servers.
-They just need to build the container images, and the container images can run on everywhere they want.
-Container technology also isolates each container environments just likes a single host machine.
-
-In this paper, we not only migrate the Docker containers between two physical machines, but also migrate the Docker containers in the Docker Swarm cluster.
-Furthermore, we enhance the high availability in the Docker Swarm cluster, the container can be set that checkpoint the container images to remote storage service; whenever the Docker Nodes are fail, the containers which run in the failed Docker Nodes will restore the newest checkpoint to the alive Docker Nodes as well.
 \end{abstract}

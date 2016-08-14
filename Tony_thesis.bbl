@@ -8,10 +8,6 @@ Criu.
 Docker swarm.
 \newblock \url{https://docs.docker.com/swarm/overview/}.
 
-\bibitem{oci}
-Oci.
-\newblock \url{https://www.opencontainers.org/}.
-
 \bibitem{runc}
 runc.
 \newblock \url{https://runc.io/}.
@@ -37,6 +33,12 @@ Eric~W Biederman and Linux Networx.
 \newblock Multiple instances of the global linux namespaces.
 \newblock In {\em Proceedings of the Linux Symposium}, volume~1, pages
   101--112. Citeseer, 2006.
+
+\bibitem{bonomi2012fog}
+Flavio Bonomi, Rodolfo Milito, Jiang Zhu, and Sateesh Addepalli.
+\newblock Fog computing and its role in the internet of things.
+\newblock In {\em Proceedings of the first edition of the MCC workshop on
+  Mobile cloud computing}, pages 13--16. ACM, 2012.
 
 \bibitem{chowdhury2010survey}
 NM~Mosharaf~Kabir Chowdhury and Raouf Boutaba.
@@ -72,14 +74,6 @@ Rajdeep Dua, A~Reddy Raja, and Dharmesh Kakadia.
 \newblock Virtualization vs containerization to support paas.
 \newblock In {\em Cloud Engineering (IC2E), 2014 IEEE International Conference
   on}, pages 610--614. IEEE, 2014.
-
-\bibitem{gavrilovska2007high}
-Ada Gavrilovska, Sanjay Kumar, Himanshu Raj, Karsten Schwan, Vishakha Gupta,
-  Ripal Nathuji, Radhika Niranjan, Adit Ranadive, and Purav Saraiya.
-\newblock High-performance hypervisor architectures: Virtualization in hpc
-  systems.
-\newblock In {\em Workshop on System-level Virtualization for HPC (HPCVirt)}.
-  Citeseer, 2007.
 
 \bibitem{goldberg1974survey}
 Robert~P Goldberg.
@@ -163,6 +157,12 @@ Stephen Soltesz, Herbert P{\"o}tzl, Marc~E Fiuczynski, Andy Bavier, and Larry
 \newblock In {\em ACM SIGOPS Operating Systems Review}, volume~41, pages
   275--287. ACM, 2007.
 
+\bibitem{stolfo2012fog}
+Salvatore~J Stolfo, Malek~Ben Salem, and Angelos~D Keromytis.
+\newblock Fog computing: Mitigating insider data theft attacks in the cloud.
+\newblock In {\em Security and Privacy Workshops (SPW), 2012 IEEE Symposium
+  on}, pages 125--128. IEEE, 2012.
+
 \bibitem{xavier2013performance}
 Miguel~G Xavier, Marcelo~V Neves, Fabio~D Rossi, Tiago~C Ferreto, Timoteo
   Lange, and Cesar~AF De~Rose.
@@ -181,13 +181,5 @@ Li~Yan.
 Chen Yang.
 \newblock Checkpoint and restoration of micro-service in docker containers.
 \newblock 2015.
-
-\bibitem{younge2011analysis}
-Andrew~J Younge, Robert Henschel, James~T Brown, Gregor Von~Laszewski, Judy
-  Qiu, and Geoffrey~C Fox.
-\newblock Analysis of virtualization technologies for high performance
-  computing environments.
-\newblock In {\em Cloud Computing (CLOUD), 2011 IEEE International Conference
-  on}, pages 9--16. IEEE, 2011.
 
 \end{thebibliography}

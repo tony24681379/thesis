@@ -190,7 +190,7 @@ Checkpoint & 9.6 MB & 14 MB \\
 \end{center}
 \end{table}
 
-\section{The Influence of Many Containers Checkpoint in The Same Time on Container Checkpoint Time}
+\section{The Influence of Many Containers Checkpoint at The Same Time on Container Checkpoint Time}
 Figure \ref{fig:many containers} demonstrates the influence of checkpoint time when many containers checkpoint in the same.
 As more containers checkpoint in the same time, the more checkpoint time for each container has to take.
 In storing in disk case, it almost needs twice times when 4 containers checkpointing in the same time. That's the reason that we implement checkpoint queue to solve this problem.
