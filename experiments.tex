@@ -1,8 +1,8 @@
 \chapter{Experiments}
 \label{chap:experiments}
 \section{Environment}
-We developed our experiments environment cluster were listed as table \ref{talbe:Host}, and created 4 virtual machines in the computer that each of their resource were listed as table \ref{talbe:Virtual Machine}. We will mount NFS to each virtual machines and test 2 types each of NFS, hard disk, and memory(tmpfs). 
-In addition, we will test the difference between \textbf{Direct} method that is defined as new checkpoint image and \textbf{Track-memory} method that is defined as pre-dump checkpoint image which is followed by checkpoint images.
+We developed our experiments environment cluster were listed as table \ref{table:Host}, and created 4 virtual machines in the computer that each of their resource were listed as table \ref{table:Virtual Machine}. We will mount NFS to each virtual machines and test 2 types each of NFS, hard disk, and memory(tmpfs). 
+In addition, we also test the difference between \textbf{Direct} method  and \textbf{Track-memory} method as Section \ref{sec:Ticker Strategy}.
 
 \begin{table}[hbtp]
 \begin{center}
@@ -18,7 +18,7 @@ Virtual Box version & 5.10.14 \\ \hline
 \end{tabular}
 \end{center}
 \caption{Experiment environment}
-\label{talbe:Host}
+\label{table:Host}
 \end{table}
 
 \begin{table}[hbtp]
@@ -34,7 +34,7 @@ Docker Swarm version & 1.2 \\ \hline
 \end{tabular}
 \end{center}
 \caption{Virtual Machine experiment environment}
-\label{talbe:Virtual Machine}
+\label{table:Virtual Machine}
 \end{table}
 
 \section{Container Migration Time}
@@ -92,104 +92,6 @@ As these experiment results, the checkpoint-ticker period $ T_i $ has a big infl
 \label{fig:Checkpoint Time Influence CPU}
 \end{figure}
 
-\section{The Influence of Container Memory Size on Container Checkpoint Time}
-\label{sec:Memory Size}
-In this experiment, there are 3 different memory size processes measured. These processes allocate 1 MB, 100 MB, and 1 GB and change the memory with random values quickly in a while loop.
-
-As shown in Figure \ref{fig:1MB}, the pre-dump checkpoint time is at most 1/5 of the checkpoint time and track-memory checkpoint time is about the same as checkpoint time.
-
-However, in Figure \ref{fig:100MB}, the pre-dump checkpoint time is almost a halt of the checkpoint time in the 100 MB process.
-In this scenario, the track-memory checkpoint time is still nearly as checkpoint time, but the total checkpoint time is about 1.5 times longer then checkpoint time without track-memory, it means when every version-group is created, the first total checkpoint time is 1.5 times longer then \textbf{Direct} method's checkpoint time .
-
-In the 1 GB process, Figure \ref{fig:1GB} shows that the pre-dump checkpoint time is almost as same as the checkpoint time. It situation shows that the total checkpoint time is about 2 times longer then \textbf{Direct} method when every version-group is created.
-
-In contrast, If the process has allocated the memory but didn't use it, the result will show as Figure \ref{fig:allocate memory}. This figure shows whatever how many memories are allocated in the process, the pre-dump checkpoint time and checkpoint time are all smaller than the process which is allocated memories with changing it.
-
-Follow these experiments, the memory's change has a big influence about container checkpoint time. It is not a effectiveness way when the process need to change memory a lot in the checkpoint-ticker period $ T_i $ time.
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=14cm]{figure/1MB.png}
-\end{center}
-\caption{1MB container process's checkpoint time}
-\label{fig:1MB}
-\end{figure}
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=14cm]{figure/100MB.png}
-\end{center}
-\caption{100MB container process's checkpoint time}
-\label{fig:100MB}
-\end{figure}
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=14cm]{figure/1GB.png}
-\end{center}
-\caption{1GB container process's checkpoint time}
-\label{fig:1GB}
-\end{figure}
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=14cm]{figure/allocate_mem_without_change.png}
-\end{center}
-\caption{Allocated memory without change process's checkpoint time}
-\label{fig:allocate memory}
-\end{figure}
-
-\section{The Influence of Container Memory Usage on Container Checkpoint Image Size}
-In the section \ref{sec:Memory Size}, the container checkpoint time is direct ratio to process memory usage. In this section, the checkpoint images size will be estimated.
-
-In Table \ref{table:process image size}, it shows that the experiments in the section \ref{sec:Memory Size}. If the process uses more memory, the checkpoint image size will be larger. However, although process allocates memory a lot, the checkpoint size still small unless the memory be used.
-
-In Table \ref{table:process image size}, it shows that track-memory version of checkpoint is useless, because it takes more checkpoint time and more storage spaces. To change this view, we test Redis benchmark for daily application. The redis-benchmark command is:
-\begin{center}
-redis-benchmark -t set -l
-\end{center}
-This command will send 100000 requests with 50 parallel clients. The results shown as table \ref{table:redis image size}, the pre-dump checkpoint image size is similar as checkpoint image size, but the track-memory checkpoint image size is smaller than the others. This experiment result shows that the Table \ref{table:process image size} is the worst case in checkpoint image size. In this case, if track-memory checkpoint is used, it will save more than 2 times storage space.
-
-As these results, we observe the container checkpoint image size is related with the container checkpoint time.
-When the container checkpoint time increasing, the container checkpoint image size will increase, too.
-When the container checkpoint image size over 500 MB, it means that the container memory has changed a lot, pre-dump checkpoint is an inefficient action.
-To avoid unnecessary container pre-dump, whenever container checkpoint group's average image size over 500 MB, next checkpoint group will not pre-dump the container checkpoint.
-
-\begin{table}[hbtp]
-\begin{center}
-\begin{tabular}{|c|c|c|c|c|}\hline 
-• & 1 MB & 100 MB & 1 GB & Allocate memory without changing\\ 
-\hline 
-Pre-dump & 1 MB & 100 MB & 1 GB & 102 KB\\ 
-\hline 
-Checkpoint-track-memory & 1 MB & 100 MB & 1 GB & 90.9 KB \\ 
-\hline 
-Checkpoint & 1 MB & 100 MB & 1 GB & 175.2 KB \\ 
-\hline 
-\end{tabular}
-\caption{Process allocated memory's checkpoint image size}
-\label{table:process image size}
-\end{center}
-\end{table}
-
-\begin{table}[hbtp]
-\begin{center}
-\begin{tabular}{|c|c|c|}
-\hline 
-• & Redis & Redis-benchmark \\ 
-\hline 
-Pre-dump & 9 MB & 14 MB \\ 
-\hline 
-Checkpoint-track-memory & 2.3 MB & 2.3 MB \\ 
-\hline 
-Checkpoint & 9.6 MB & 14 MB \\ 
-\hline 
-\end{tabular}
-\caption{Redis and Redis benchmark's checkpoint image size}
-\label{table:redis image size}
-\end{center}
-\end{table}
-
 \section{The Influence of Many Containers Checkpoint at The Same Time on Container Checkpoint Time}
 Figure \ref{fig:many containers} demonstrates the influence of checkpoint time when many containers checkpoint in the same.
 As more containers checkpoint in the same time, the more checkpoint time for each container has to take.
@@ -203,16 +105,33 @@ In storing in disk case, it almost needs twice times when 4 containers checkpoin
 \label{fig:many containers}
 \end{figure}
 
-\section{The Influence of Container Checkpoint Versions on Container Checkpoint Time}
-As Figure \ref{fig:versions}, \textbf{Direct} method's checkpoint time average have 2 horizontal lines.
-Two \textbf{Track-memory} method's trendline are slow increasing when the container checkpoint versions growing up.
-Each of them has one point of intersections with \textbf{Direct} method's checkpoint time line, the values are and 5 and 16.
-Follow these results, checkpoint-version default value sets to 5 is a better choice, and it should not exceed than 16.
+\section{Performance of Checkpoint Time and Space}
+In this experiment, we checkpoint 50 times the container which executes Redis.  We presume $ VG_i = 5 $, there are 3 scenarios: checkpoint and pre-dump each 5 checkpoint versions, pre-dump once and checkpoint, direct checkpoint every time.  Figure \ref{fig:50_time} shows each scenario checkpoint time.  Table \ref{table:Average Time} demonstrates that checkpoint and pre-dump each 5 checkpoint versions is faster than direct checkpoint each time about 15\% when used hard disk as remote storage.  Figure \ref{fig:50_space} shows the disk usage.  Checkpoint and pre-dump each 5 checkpoint versions(1 pre-dump and 5 checkpoint) saves about 200\% than direct checkpoint each time(5 checkpoint) when container has 5 version of checkpoint.
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=14cm]{figure/versions.png}
+\includegraphics[width=14cm]{figure/50_time.png}
 \end{center}
-\caption{Checkpoint versions of container checkpoint time}
-\label{fig:versions}
+\caption{Disk space}
+\label{fig:50_time}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+          & Pre-dump-5 & Pre-dump-once & Direct-checkpoint \\ \hline
+Hard disk & 1938.212   & 2071.731      & 2233.558          \\ \hline
+Tmpfs     & 685.7929   & 711.0002      & 700.2387          \\ \hline
+\end{tabular}
+\caption{Average Time}
+\label{table:Average Time}
+\end{table}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/50_space.png}
+\end{center}
+\caption{Checkpoint time}
+\label{fig:50_space}
 \end{figure}

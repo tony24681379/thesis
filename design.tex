@@ -4,23 +4,46 @@
 Native Docker has two parts, Docker Client and Docker Daemon. Docker Daemon has several components include server, engine, registry, graph, driver and runC. To support Checkpoint and Restoration request, some of these steps should be implemented.
 
 \subsection{Docker Client}
-There are 3 Docker commands implementation in Docker Client, including Checkpoint, Restore, and Migrate. In Checkpoint command should have these configurations:
+There are 3 Docker commands implementation in Docker Client, including Checkpoint, Restore, and Migrate. Checkpoint command should have these functions:
 \begin{itemize}
-	\item Image directory - Dump checkpoint image directory.
-	\item Work directory - Dump checkpoint image log directory.
-	\item Leave running - After dumping the checkpoint images, consideration is required whether the container keep running.
-	%consideration is required whether the container keep running.
-	\item Pre-dump - Pre-dump checkpoint memory image to minimize frozen time.
-	\item Pre image directory - Define which version image to compare.
-	\item Track memory - Track memory to pre image directory image to minimize disk space.
+	\item \texttt{--image-dir} - Dump checkpoint image directory.
+	\item \texttt{--work-dir} - Dump checkpoint image log directory.
+	\item \texttt{--leave-running} - After dumping the checkpoint images, consideration is required whether the container keep running.
+	\item \texttt{--pre-dump} - Pre-dump checkpoint memory image to minimize frozen time.
+	\item \texttt{--prev-image-dir} - Define which version image to compare.
+	\item \texttt{--track-mem} - Track memory to pre image directory image to minimize disk space.
 \end{itemize}
-In Restore command, it should have these configurations:
+If user wants checkpoint \$container-id to directory /tmp/checkpoint and keeps container running, the command is:
+\begin{center}
+\texttt{docker checkpoint --image-dir /tmp/checkpoint --leave-running \$container-id}
+\end{center}
+
+Restore command should have these functions:
 \begin{itemize}
-	\item Image directory - Checkpoint image directory to restore from.
-	\item Work directory - Directory for restore log.
-	\item Force - Force restoring the container from image directory whether container is running.
+	\item \texttt{--image-dir} - Checkpoint image directory to restore from.
+	\item \texttt{--work-dir} - Directory for restore log.
+	\item \texttt{--force} - Force restoring the container from image directory whether container is running.
 \end{itemize}
-In Migrate command, it focuses on Docker Swarm Scheduler filter configurations. Meanwhile, in Run command, it is possible for the container to set filter configurations with environment variables or labels. Therefore, the implementation of environment variables and labels in Migrate command is required.
+If user wants restore \$container-id from directory /tmp/checkpoint and forces container restoring, the command is:
+\begin{center}
+\texttt{docker restore --image-dir /tmp/checkpoint --force \$container-id}
+\end{center}
+
+Migrate command set filter configurations through environment variables or labels. Migrate command should have these functions:
+\begin{itemize}
+	\item \texttt{-e, --env=[]} - Set environment variables.
+	\item \texttt{-l, --label=[]} - Set meta data on a container.
+\end{itemize}
+
+If user doesn't specific assign which node container migrate to, the command is:
+\begin{center}
+\texttt{docker migrate \$container-id}
+\end{center}
+
+If user wants to specific assign which node container migrate to, the command is:
+\begin{center}
+\texttt{docker migrate -e constraint:node==node1 \$container-id}
+\end{center}
 
 \subsection{Docker Daemon}
 In native Docker Daemon, it does not support Checkpoint and Restore commands.
@@ -51,10 +74,6 @@ In migrating a container in Docker Swarm, the Swarm schedule parameter should be
     \item Delete the checkpoint images.
     \item If the container has been migrated which has set the Checkpoint and Restoration Rescheduling Policy, it will restart the Checkpoint and Restoration Rescheduling Policy \ref{sec:checkpoint restore rescheduling policy}.
 \end{enumerate}
-%
-%The first step of creating the container in another Swarm Node is quicker for all environments, because we assume that they already have downloaded their container images from the remote repository, thus, they don't need to transport container images from the other Swarm Node.
-%
-%Second, if we have version control of checkpoint the container, the container has to pre-dump the checkpoint image. After pre-dumping the checkpoint image, 
 
 \section{Docker Swarm Checkpoint and Restoration \\Rescheduling Policy}
 \label{sec:checkpoint restore rescheduling policy}
@@ -69,12 +88,11 @@ To avoid many containers checkpoint in the same time, the checkpoint requests fr
 It only allows one container checkpoint at a time.
 
 In addition, Docker Swarm Checkpoint and Restoration Rescheduling Policy also supports high availability whenever Docker Swarm primary manager fails, the others Swarm Manager replica instances will lead to a new primary manager. After replica has chosen a new primary manager, it will restart the container's Checkpoint Tickers.
-By experiment, it can save at least 2 times storage space when $VG_i$ bigger than 5.
 
 \subsection{Docker Swarm Container Checkpoint Ticker}
 Algorithm \ref{code:checkpointTicker} shows the Container Checkpoint Ticker's algorithm.
 In line 1 and 2, checkpoint-time period $T_i$ and version-group $VG_i$ are set when the container $C_i$ is created through Docker Swarm Manager, and every $T_i$ is independent.
-Each $T_i$ in the Docker Swarm cluster has its starting time and time ticker, time ticker will dump checkpoint image repetitively at regular intervals. If version-group $VG_i$ has not been set, it will be set to 5.
+Each $T_i$ in the Docker Swarm cluster has its starting time and time ticker, time ticker will dump checkpoint image repetitively at regular intervals. If version-group $VG_i$ has not been set, by experimental results, it will be better to set to 5.
 Checkpoint version $V_i=0$ and pre-dump checkpoint version $pre$-$dump V_i=0$ should be defined for each container $C_i$.
 
 In line 4 to 18, for each container is running and $C_i$ checkpoint ticker period $T_i$ pounds, $C_i$, Swarm Manger will do line 5 to 17.
@@ -83,15 +101,7 @@ After pre-dumping the container checkpoint image or $C_i$ has previous version c
 As it is shown as Figure \ref{fig:Containers checkpoint versions in remote storage server}, every container has each pre-dump checkpoint directories and each pre-dump checkpoint directories have version-group versions checkpoint images.
 In line 12 to 14, Swarm Manager sends delete checkpoint request to $N_i$ to delete oldest Pre-dump version directory whenever container has more than three Pre-dump versions directory.
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=15cm]{figure/checkpoint_demo.png}
-\end{center}
-\caption{Containers checkpoint versions in remote storage server}
-\label{fig:Containers checkpoint versions in remote storage server}
-\end{figure}
-
-\begin{algorithm}[h]
+\begin{algorithm}[hbtp]
     \caption{Checkpoint Ticker Algorithm}
     \label{code:checkpointTicker}
     \begin{algorithmic}[1]
@@ -125,6 +135,138 @@ In line 12 to 14, Swarm Manager sends delete checkpoint request to $N_i$ to dele
 	\end{algorithmic}
 \end{algorithm}
 
+\begin{figure}[hbtp]
+\begin{center}
+\includegraphics[width=15cm]{figure/checkpoint_demo.png}
+\end{center}
+\caption{Containers checkpoint versions in remote storage server}
+\label{fig:Containers checkpoint versions in remote storage server}
+\end{figure}
+
+\subsection{Container Checkpoint Ticker Strategy}
+\label{sec:Ticker Strategy}
+To define a better $VG_i$ and decide which time containers shouldn't use pre-dump, we have designed 3 experiments to find it. We will test the difference between \textbf{Direct} method that is defined as new checkpoint image and \textbf{Track-memory} method that is defined as pre-dump checkpoint image which is followed by checkpoint images.
+
+\subsubsection{The Influence of Container Memory Usage on Container Checkpoint Time}
+\label{sec:Memory Size}
+There are 3 different memory size processes measured. These processes allocate 1 MB, 100 MB, and 1 GB and change the memory with random values quickly in a while loop.
+
+As shown in Figure \ref{fig:1MB}, the pre-dump checkpoint time is at most 1/5 of the checkpoint time and track-memory checkpoint time is about the same as checkpoint time.
+
+However, in Figure \ref{fig:100MB}, the pre-dump checkpoint time is almost a halt of the checkpoint time in the 100 MB process.
+In this scenario, the track-memory checkpoint time is still nearly as checkpoint time, but the total checkpoint time is about 1.5 times longer then checkpoint time without track-memory, it means when every version-group is created, the first total checkpoint time is 1.5 times longer then \textbf{Direct} method's checkpoint time .
+
+In the 1 GB process, Figure \ref{fig:1GB} shows that the pre-dump checkpoint time is almost as same as the checkpoint time. It situation shows that the total checkpoint time is about 2 times longer then \textbf{Direct} method when every version-group is created.
+
+In contrast, If the process has allocated the memory but didn't use it, the result will show as Figure \ref{fig:allocate memory}. This figure shows whatever how many memories are allocated in the process, the pre-dump checkpoint time and checkpoint time are all smaller than the process which is allocated memories with changing it.
+
+Follow these experiments, the memory's change has a big influence about container checkpoint time. It is not a effectiveness way when the process need to change memory a lot in the checkpoint-ticker period $ T_i $ time.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/1MB.png}
+\end{center}
+\caption{1MB container process's checkpoint time}
+\label{fig:1MB}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/100MB.png}
+\end{center}
+\caption{100MB container process's checkpoint time}
+\label{fig:100MB}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/1GB.png}
+\end{center}
+\caption{1GB container process's checkpoint time}
+\label{fig:1GB}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/allocate_mem_without_change.png}
+\end{center}
+\caption{Allocated memory without change process's checkpoint time}
+\label{fig:allocate memory}
+\end{figure}
+
+\subsubsection{The Influence of Container Memory Usage on Container Checkpoint Image Size}
+Table \ref{table:process image size} shows that the experiments in the section \ref{sec:Memory Size}. If the process uses more memory, the checkpoint image size will be larger. However, although process allocates memory a lot, the checkpoint size still small unless the memory be used.
+
+Table \ref{table:redis image size} shows that track-memory version of checkpoint is useless, because it takes more checkpoint time and more storage spaces. To change this view, we test Redis benchmark for daily application. The redis-benchmark command is:
+\begin{center}
+\texttt{redis-benchmark -t set -l}
+\end{center}
+This command will send 100000 requests with 50 parallel clients. The results shown as table \ref{table:redis image size}, the pre-dump checkpoint image size is similar as checkpoint image size, but the track-memory checkpoint image size is smaller than the others. This experiment result shows that the Table \ref{table:process image size} is the worst case in checkpoint image size.
+
+\begin{table}[hbtp]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}\hline 
+• & 1 MB & 100 MB & 1 GB & Allocate memory without changing\\ 
+\hline 
+Pre-dump & 1 MB & 100 MB & 1 GB & 102 KB\\ 
+\hline 
+Checkpoint-track-memory & 1 MB & 100 MB & 1 GB & 90.9 KB \\ 
+\hline 
+Checkpoint & 1 MB & 100 MB & 1 GB & 175.2 KB \\ 
+\hline 
+\end{tabular}
+\caption{Process allocated memory's checkpoint image size}
+\label{table:process image size}
+\end{center}
+\end{table}
+
+\begin{table}[hbtp]
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline 
+• & Redis & Redis-benchmark \\ 
+\hline 
+Pre-dump & 6.6 MB & 14 MB \\ 
+\hline 
+Checkpoint-track-memory & 2.3 MB & 2.3 MB \\ 
+\hline 
+Checkpoint & 6.6 MB & 14 MB \\ 
+\hline 
+\end{tabular}
+\caption{Redis and Redis benchmark's checkpoint image size}
+\label{table:redis image size}
+\end{center}
+\end{table}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/version_space.png}
+\end{center}
+\caption{Checkpoint space between Direct and Track-memory}
+\label{fig:vsersion space}
+\end{figure}
+
+\subsubsection{The Influence of Container Checkpoint Versions on Container Checkpoint Time}
+As Figure \ref{fig:versions}, \textbf{Direct} method's checkpoint time average have 2 horizontal lines.
+Two \textbf{Track-memory} method's trendline are slow increasing when the container checkpoint versions growing up.
+Each of them has one point of intersections with \textbf{Direct} method's checkpoint time line, the values are and 5 and 16.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=14cm]{figure/versions.png}
+\end{center}
+\caption{Checkpoint versions of container checkpoint time}
+\label{fig:versions}
+\end{figure}
+
+\subsubsection{Experimental Results Conclusion}
+Follow these results, checkpoint-version default value sets to 5 is a better choice, and it should not exceed than 16.
+We presume $ VG_i = 5 $, the disk storage needs total space is $ Total = pre-dump + VG_i * checkpoint $.  As shown in Figure \ref{fig:vsersion space}, if track-memory checkpoint is used, it will save about 200\% storage space.
+We observe the container checkpoint image size is related with the container checkpoint time.
+When the container checkpoint time increasing, the container checkpoint image size will increase, too.
+When the container checkpoint image size over 500 MB, it means that the container memory has changed a lot, pre-dump checkpoint is an inefficient action.
+To avoid unnecessary container pre-dump, whenever container checkpoint group's average image size over 500 MB, next checkpoint group will not pre-dump the container checkpoint.
+
 \subsection{Docker Swarm Restore Rescheduling Policy}
 Algorithm \ref{code:Restore} gives a specific explanation of Restore Rescheduling Policy. In line 1, $ R_i $ label is set when the container $C_i$ is created by Docker Swarm Manager.
 In line 3 to 7, whenever Swarm Nodes $ N_i $ fail, Swarm Manager will execute procedure \textsc{Restore container} that restores every container $ C_i $ which has $ R_i $ label to another Swarm Nodes $ N_i $.
@@ -134,7 +276,7 @@ As result of creating container $ C_r $, Swarm Manager restores the fail contain
 
 Whenever Swarm Manager's attempts to retry are all failed for $ VG_i $ times, it will create and restart a new container as normal Docker Swarm Rescheduling Policy.
 
-\begin{algorithm}[h]
+\begin{algorithm}[hbtp]
     \caption{Restore Rescheduling Algorithm}
     \label{code:Restore}
     \begin{algorithmic}[1]

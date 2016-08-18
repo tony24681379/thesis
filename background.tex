@@ -33,9 +33,6 @@ When running, a Docker daemon will receive requests from Docker clients or remot
 After version 0.9, Docker used \emph{libcontainer} as its default execution environment, and \emph{runC} \cite{runc} is a repackaging of \emph{libcontainer}, which provides CLI to support the containers management, such as the control of namespace, cgroups, apparmor, network, capabilities, firewall, etc.
 
 \section{Docker Swarm}
-% already said in the introduction.
-%There are many Docker cluster software, like Docker Swarm\cite{DockerSwarm}, Google Kubernetes \cite{bernstein2014containers}, Apache Mesos \cite{hindman2011mesos}, etc. We choose Docker Swarm because it supports native Docker API, and Docker usage. We don't need to learn the other Docker cluster software.
-
 Docker Swarm is an orchestration tool for Docker, which gathers several Docker engines together into one virtual Docker engine. Docker Swarm provides standard Docker API, so it can be connected by Dokku, Docker Machine, Docker Compose, Jenkins, DockerUI, Drone, etc. Of course, it also supports Docker client as well.
 
 Docker Swarm has two components: Swarm manager and Swarm node. A Swarm manager is the manager which handles the requests from Docker client and RESTful API and manages multiple Docker nodes'. A Swarm node is an agent which sends heartbeats to the discovery service to ensure the Docker daemons are alive in the cluster.
@@ -62,7 +59,7 @@ First, the scheduler follows user's filters to decide which nodes can be used.
 Second, the scheduler undergoes multiple strategies to select the best node in the cluster.
 
 \subsection{High availability of Swarm Manager}
-Swarm Manager responds to the cluster and manages the resources of multiple Docker Daemons which are served by Swarm Nodes {\color{red} is Docker node or Swarm node? you used both and very confusing}. If the Swarm manager dies, a new one will be created to handle with the interruption of service.
+Swarm Manager responds to the cluster and manages the resources of multiple Docker Daemons which are served by Swarm Nodes. If the Swarm manager dies, a new one will be created to handle with the interruption of service.
 
 The high availability feature allows Docker Swarm has multiple Swarm Manager instances. System manager can create a primary manager and multiple replica instances.
 Whenever requests are sent to replica instances, requests will be automatically proxied to the primary manager.
@@ -73,7 +70,6 @@ Docker Swarm has a rescheduling policy, which can be set when a container is sta
 
 \section{CRIU}
 CRIU \cite{CRIU} (Checkpoint/Restore in Userspace) is a package for checkpointing and restoring of a process.  The checkpointing creates a complete snapshot of a process's state, including  memory contents, file descriptors, and open TCP connections.  CRIU can be used for suspending and resuming processes, or migrating them from one machine to another.
-{\color{red} more introduction about CRIU.  Like multiple version.  What's the differences between predump and dump. How it takes the snapshot, etc.  Put some figures....}
 
 \subsection{Checkpoint}
 The checkpoint procedure relies on /proc file system which CRIU takes the information of process.  It needs the pipes parameters, descriptors information, and memory maps. There are 3 steps:
@@ -92,3 +88,12 @@ When CRIU restores the process, it will morph itself into the tasks it restore. 
     \item Restores all resources such as memory mappings, timers, namespaces, cgroups, threads, etc.
     \item Morph CRIU itself into the tasks and continue the process.
 \end{enumerate}
+
+\section{Related Work}
+The migration of Virtual Machine \cite{clark2005live, liu2013performance} has been researched for a long time.
+However, it always has to take a long time because Virtual Machine's resources such as memory, and image spaces are large.
+
+Container migration is a growing researches. Most of researches used checkpoint and restoration to accomplish container migration.
+Checkpoint-restoration of Linux applications \cite{laadan2010linux} was a project since 2008. CRIU (Checkpoint/Restore in Userspace) is a project to implement checkpoint/restore functionality for Linux in userspace.
+In \cite{yang2015checkpoint}, it used CRIU to migrate Docker container.
+\cite{mirkin2008containers} used checkpoint to live migrate OpenVZ container.
